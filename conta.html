@@ -331,9 +331,12 @@ main{
                         </span>
                     </div>
 
-                    <button class="btn" type="button">
-                        Entrar
-                    </button>
+                   <button
+                         class="btn"
+                         type="button"
+                         onclick="fazerLogin()">
+                         Entrar
+                   </button>
 
                     <span
                     class="forgot-password"
@@ -392,10 +395,12 @@ main{
                         </span>
                     </div>
 
-                    <button class="btn" type="button">
+                    <button
+                        class="btn"
+                        type="button"
+                        onclick="criarConta()">
                         Registar
                     </button>
-
                     <p class="toggle-form" onclick="toggleForms()">
                         Já tem conta?
                         <strong>Entrar</strong>
@@ -423,6 +428,283 @@ main{
         });
       </script>
       
+       <script>
 
+// ======================================================
+// LOGIN
+// ======================================================
+
+async function fazerLogin() {
+
+    const email =
+        document.getElementById("loginEmail")
+        .value
+        .trim();
+
+    const password =
+        document.getElementById("loginPassword")
+        .value;
+
+    if (!email || !password) {
+
+        alert(
+            "Digite o email e a palavra-passe."
+        );
+
+        return;
+    }
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/auth/login",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        if (!dados.success) {
+
+            alert(dados.message);
+
+            return;
+        }
+
+        alert(
+            "Login realizado com sucesso!"
+        );
+
+        // Se for administrador
+        if (dados.user.role === "admin") {
+
+            window.location.href =
+                "/admin/dashboard.html";
+
+        } else {
+
+            // Cliente normal
+            window.location.href =
+                "/conta.html";
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Não foi possível conectar ao servidor."
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// CRIAR CONTA
+// ======================================================
+
+async function criarConta() {
+
+    const name =
+        document.getElementById("registerName")
+        .value
+        .trim();
+
+    const email =
+        document.getElementById("registerEmail")
+        .value
+        .trim();
+
+    const password =
+        document.getElementById("registerPassword")
+        .value;
+
+    if (!name || !email || !password) {
+
+        alert(
+            "Preencha todos os campos."
+        );
+
+        return;
+    }
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/auth/register",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password
+                    })
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        if (!dados.success) {
+
+            alert(dados.message);
+
+            return;
+        }
+
+        alert(
+            "Conta criada com sucesso! Agora pode entrar."
+        );
+
+        // Voltar para login
+        toggleForms();
+
+        // Limpar campos
+        document.getElementById(
+            "registerName"
+        ).value = "";
+
+        document.getElementById(
+            "registerEmail"
+        ).value = "";
+
+        document.getElementById(
+            "registerPassword"
+        ).value = "";
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Não foi possível conectar ao servidor."
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// LOGOUT
+// ======================================================
+
+async function fazerLogout() {
+
+    try {
+
+        await fetch(
+            "/api/auth/logout",
+            {
+                method: "POST",
+                credentials: "include"
+            }
+        );
+
+        window.location.href =
+            "/conta.html";
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+// ======================================================
+// VERIFICAR USUÁRIO
+// ======================================================
+
+async function verificarUsuario() {
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/auth/me",
+                {
+                    credentials: "include"
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        if (dados.loggedIn) {
+
+            console.log(
+                "Usuário conectado:",
+                dados.user
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+// ======================================================
+// MOSTRAR / ESCONDER SENHA
+// ======================================================
+
+function togglePassword(
+    inputId,
+    element
+) {
+
+    const input =
+        document.getElementById(inputId);
+
+    if (input.type === "password") {
+
+        input.type = "text";
+
+        element.textContent = "🙈";
+
+    } else {
+
+        input.type = "password";
+
+        element.textContent = "👁️";
+
+    }
+
+}
+
+</script>
 </body>
 </html>
