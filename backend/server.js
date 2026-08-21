@@ -152,3 +152,12 @@ app.listen(
 
     }
 );
+        //    a.ROY_STORE
+
+const authRoutes = require("./routes/auth");
+
+app.use("/api/auth", authRoutes);
+
+const cookieParser = require("cookie-parser");
+
+app.use(cookieParser());
