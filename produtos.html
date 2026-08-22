@@ -11,20 +11,117 @@
     <link rel="stylesheet" href="estilo/mediaquerystyle.css">
 
 <style>
-    /* ================================
-   HAMBURGER - SOMENTE PRODUTOS
-================================ */
 
-.hamburger {
+nav {
+    background-color: #2c2c2c;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+ 
+ 
+ 
+  .menu {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+  }
+ 
+  .menu li a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem;
+    transition: background 0.3s;
+  }
+ 
+  .menu li a:hover {
+    background-color: #333;
+    border-radius: 5px;
+  }
+ 
+  /* HAMBURGER */
+  .hamburger {
     display: none;
-}
-
-
-/* ================================
-   MOBILE
-================================ */
-
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 22px;
+    cursor: pointer;
+  }
+ 
+  .hamburger div {
+    width: 100%;
+    height: 4px;
+    background-color: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger.active div:nth-child(1) {
+    transform: rotate(45deg) translateY(8px);
+  }
+ 
+  .hamburger.active div:nth-child(2) {
+    opacity: 0;
+  }
+ 
+  .hamburger.active div:nth-child(3) {
+    transform: rotate(-45deg) translateY(-8px);
+  }
+ 
+  /* MOBILE */
+  @media (max-width: 800px) {
+    .hamburger {
+      display: flex;
+    }
+ 
+    .menu {
+     
+      display: flex;
+      position: absolute;
+      top: 260%;
+      left: -132px;
+      right: -92px;
+      background-color: #2c2c2c;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      display: none;
+      animation: slideDown 0.3s ease-in-out;
+    }
+ 
+    .menu.show {
+      
+      display: none;
+    }
+    
+   
+  }
+ 
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+ 
+/* =========================================================
+   MENU MOBILE
+   ========================================================= */
 @media (max-width: 800px) {
+
+    /* -----------------------------------------------------
+       BOTÃO HAMBURGER
+       ----------------------------------------------------- */
 
     .hamburger {
         display: flex;
@@ -33,7 +130,11 @@
         height: 45px;
 
         padding: 0;
+        margin: 0;
+
         border: none;
+        outline: none;
+
         background: transparent;
 
         cursor: pointer;
@@ -45,8 +146,13 @@
         gap: 6px;
 
         position: relative;
-        z-index: 9999;
+        z-index: 10001;
     }
+
+
+    /* -----------------------------------------------------
+       LINHAS DO HAMBURGER
+       ----------------------------------------------------- */
 
     .hamburger span {
         display: block;
@@ -54,165 +160,65 @@
         width: 28px;
         height: 3px;
 
-        background: white;
+        background: #ffffff;
+
         border-radius: 5px;
 
-        transition: 0.3s ease;
+        transition:
+            transform 0.3s ease,
+            opacity 0.2s ease;
     }
 
 
-    /* MENU FECHADO */
+    /* -----------------------------------------------------
+       NAV DO MENU
+       FECHADO POR PADRÃO
+       ----------------------------------------------------- */
 
     .navbar nav {
-        display: none;
-    }
+        display: block !important;
 
-
-    /* MENU ABERTO */
-
-    .navbar nav:has(#menu.show) {
-        display: block;
-
-        position: absolute;
-
-        top: 100%;
-        right: 0;
-
-        width: 220px;
-
-        padding: 10px;
-
-        background: #2c2c2c;
-
-        border-radius: 12px;
-
-        z-index: 9998;
-    }
-
-    .navbar nav #menu {
-        display: flex;
-
-        flex-direction: column;
+      
 
         width: 100%;
 
-        padding: 0;
-        margin: 0;
-    }
 
+     
 
-    .navbar nav #menu li {
-        width: 100%;
-
-        text-align: center;
-
-        list-style: none;
-    }
-
-
-    .navbar nav #menu li a {
-        display: block;
-
-        width: 100%;
-
-        padding: 14px 10px;
-
-        color: white;
-
-        text-decoration: none;
-    }
-
-
-    .navbar nav #menu li a:hover {
-        background: #47434342;
-
-        border-radius: 999px;
-    }
-
-
-    /* ANIMAÇÃO */
-
-    .hamburger.active span:nth-child(1) {
-        transform: translateY(9px) rotate(45deg);
-    }
-
-    .hamburger.active span:nth-child(2) {
+        /* Estado fechado */
         opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+
+        transform: translateY(-10px);
+
+        transition:
+            opacity 0.25s ease,
+            transform 0.25s ease,
+            visibility 0.25s ease;
     }
 
-    .hamburger.active span:nth-child(3) {
-        transform: translateY(-9px) rotate(-45deg);
+
+    /* -----------------------------------------------------
+       NAV DO MENU
+       ABERTO
+       ----------------------------------------------------- */
+
+    .navbar nav.menu-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+
+        transform: translateY(0);
     }
 
-}
-/* ================================
-   INFORMAÇÕES DO PRODUTO
-================================ */
 
-.produto-info {
-    padding: 4px 5px 17px 0;
+
+   
+    
 }
 
 
-/* categoria */
-
-.produto-categoria {
-    display: block;
-
-    margin-bottom: 6px;
-
-    color: #0084ff;
-
-    font-size: 10px;
-    font-weight: 700;
-
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-
-/* nome */
-
-.produto-nome {
-    margin: 0;
-
-    color: #161616;
-
-    font-size: 17px;
-    font-weight: 700;
-
-    line-height: 1.3;
-
-    transition: .25s ease;
-}
-
-
-/* preço */
-
-.produto-preco {
-    display: flex;
-    align-items: baseline;
-justify-content: center;
-    gap: 5px;
-
-    margin-top: 8px;
-}
-
-.produto-preco strong {
-    color: #111;
-
-    font-size: 20px;
-    font-weight: 800;
-
-    letter-spacing: -.5px;
-}
-
-.produto-preco span {
-    color: #777;
-
-    font-size: 12px;
-    font-weight: 600;
-}
 
 </style>
 </head>
@@ -1173,39 +1179,91 @@ justify-content: center;
         </div>
     </footer>
 
-    <script>
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        let sessionTimeout;
-        let sessionTimeLeft = 15 * 60;
+  <script>
 
-        function showToast(msg) {
-            const toast = document.createElement("div");
-            toast.className = "toast";
-            toast.innerText = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
+/* =========================================================
+   A.ROY STORE
+   JAVASCRIPT PRINCIPAL
+   ========================================================= */
+
+
+/* =========================================================
+   VARIÁVEIS
+   ========================================================= */
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+let sessionTimeout = null;
+
+let sessionTimeLeft = 15 * 60;
+
+let historicoChart = null;
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function showToast(msg) {
+
+    const toast = document.createElement("div");
+
+    toast.className = "toast";
+
+    toast.innerText = msg;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+
+        toast.remove();
+
+    }, 3000);
+}
+
+
+/* =========================================================
+   ATUALIZAR CARRINHO
+   ========================================================= */
+
 function updateCart() {
 
-    const cartItems = document.getElementById("cart-items");
-    const cartCount = document.getElementById("cart-count");
-    const cartTotalLine = document.getElementById("cart-total-line");
+    const cartItems =
+        document.getElementById("cart-items");
+
+    const cartCount =
+        document.getElementById("cart-count");
+
+    const cartTotalLine =
+        document.getElementById("cart-total-line");
+
+    if (!cartItems || !cartCount || !cartTotalLine) {
+        return;
+    }
+
 
     cartItems.innerHTML = "";
 
     let total = 0;
+
     let count = 0;
+
 
     cart.forEach((item, index) => {
 
-        const subtotal = item.price * item.quantity;
+        const subtotal =
+            item.price * item.quantity;
 
         total += subtotal;
+
         count += item.quantity;
 
-        const li = document.createElement("li");
+
+        const li =
+            document.createElement("li");
 
         li.className = "cart-product";
+
 
         li.innerHTML = `
 
@@ -1221,13 +1279,19 @@ function updateCart() {
 
                 <div class="quantity-control">
 
-                    <button onclick="alterarQuantidade(${index}, -1)">
+                    <button
+                        type="button"
+                        onclick="alterarQuantidade(${index}, -1)">
                         −
                     </button>
 
-                    <strong>${item.quantity}</strong>
+                    <strong>
+                        ${item.quantity}
+                    </strong>
 
-                    <button onclick="alterarQuantidade(${index}, 1)">
+                    <button
+                        type="button"
+                        onclick="alterarQuantidade(${index}, 1)">
                         +
                     </button>
 
@@ -1240,87 +1304,202 @@ function updateCart() {
             </strong>
 
             <button
+                type="button"
                 class="remove-product"
                 onclick="removeFromCart(${index})">
 
                 🗑
 
             </button>
+
         `;
 
+
         cartItems.appendChild(li);
+
     });
+
 
     cartCount.innerText = count;
 
-const cartButton = document.querySelector(".cart-floating");
 
-if (count > 0) {
-    cartButton.classList.add("has-items");
-} else {
-    cartButton.classList.remove("has-items");
-}
+    const cartButton =
+        document.querySelector(".cart-floating");
+
+
+    if (cartButton) {
+
+        if (count > 0) {
+
+            cartButton.classList.add("has-items");
+
+        } else {
+
+            cartButton.classList.remove("has-items");
+
+        }
+
+    }
+
 
     cartTotalLine.innerText =
         total.toLocaleString() + " Kzs";
 
-    localStorage.setItem("cart", JSON.stringify(cart));
+
+    localStorage.setItem(
+        "cart",
+        JSON.stringify(cart)
+    );
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    updateCart();
-});
+
+/* =========================================================
+   ALTERAR QUANTIDADE
+   ========================================================= */
+
 function alterarQuantidade(index, quantidade) {
+
+    if (!cart[index]) {
+        return;
+    }
+
 
     cart[index].quantity += quantidade;
 
+
     if (cart[index].quantity <= 0) {
+
         cart.splice(index, 1);
+
     }
+
 
     updateCart();
+
+    resetSessionTimer();
+
 }
-        function addToCart(name, price) {
-            const existing = cart.find(i => i.name === name);
-            if (existing) {
-                existing.quantity++;
-            } else {
-                cart.push({ name, price, quantity: 1 });
-            }
-            updateCart();
-            showToast(`${name} adicionado ao carrinho`);
-            resetSessionTimer();
-        }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCart();
-            resetSessionTimer();
-        }
-
-        function limparCarrinho() {
-            if (confirm("Deseja limpar o carrinho?")) {
-                cart = [];
-                updateCart();
-                localStorage.removeItem("cart");
-                showToast("Carrinho limpo");
-            }
-        }
-
-       function checkout() {
 
 
-    if (cart.length === 0) {
-        alert("Seu carrinho está vazio!");
+/* =========================================================
+   ADICIONAR AO CARRINHO
+   ========================================================= */
+
+function addToCart(name, price) {
+
+    const existing =
+        cart.find(item => item.name === name);
+
+
+    if (existing) {
+
+        existing.quantity++;
+
+    } else {
+
+        cart.push({
+
+            name: name,
+
+            price: price,
+
+            quantity: 1
+
+        });
+
+    }
+
+
+    updateCart();
+
+    showToast(
+        `${name} adicionado ao carrinho`
+    );
+
+    resetSessionTimer();
+
+}
+
+
+/* =========================================================
+   REMOVER DO CARRINHO
+   ========================================================= */
+
+function removeFromCart(index) {
+
+    if (!cart[index]) {
         return;
     }
+
+
+    cart.splice(index, 1);
+
+    updateCart();
+
+    resetSessionTimer();
+
+}
+
+
+/* =========================================================
+   LIMPAR CARRINHO
+   ========================================================= */
+
+function limparCarrinho() {
+
+    if (!confirm("Deseja limpar o carrinho?")) {
+        return;
+    }
+
+
+    cart = [];
+
+    updateCart();
+
+    localStorage.removeItem("cart");
+
+    showToast("Carrinho limpo");
+
+}
+
+
+/* =========================================================
+   CHECKOUT
+   ========================================================= */
+
+function checkout() {
+
+    if (cart.length === 0) {
+
+        alert("Seu carrinho está vazio!");
+
+        return;
+    }
+
 
     const checkoutItems =
         document.getElementById("checkoutItems");
 
+    const checkoutModal =
+        document.getElementById("checkoutModal");
+
+    const checkoutTotal =
+        document.getElementById("checkoutTotal");
+
+
+    if (
+        !checkoutItems ||
+        !checkoutModal ||
+        !checkoutTotal
+    ) {
+        return;
+    }
+
+
     checkoutItems.innerHTML = "";
 
     let total = 0;
+
 
     cart.forEach(item => {
 
@@ -1328,6 +1507,7 @@ function alterarQuantidade(index, quantidade) {
             item.price * item.quantity;
 
         total += subtotal;
+
 
         checkoutItems.innerHTML += `
 
@@ -1344,304 +1524,834 @@ function alterarQuantidade(index, quantidade) {
             </div>
 
         `;
+
     });
 
-    document.getElementById("checkoutTotal").innerText =
+
+    checkoutTotal.innerText =
         total.toLocaleString() + " Kzs";
 
-    document
-        .getElementById("checkoutModal")
-        .classList.add("show");
-}
-        function toggleCart() {
-            document.getElementById("cart-container").classList.toggle("show");
-            resetSessionTimer();
-        }
 
-        function resetSessionTimer() {
-            clearInterval(sessionTimeout);
-            sessionTimeLeft = 15 * 60;
-            updateTimer();
-            sessionTimeout = setInterval(() => {
-                sessionTimeLeft--;
-                updateTimer();
-                if (sessionTimeLeft <= 0) {
-                    clearInterval(sessionTimeout);
-                    cart = [];
-                    updateCart();
-                    localStorage.removeItem("cart");
-                    document.getElementById("cart-container").classList.remove("show");
-                    showToast("Sessão expirada! Carrinho limpo.");
-                }
-            }, 1000);
-        }
+    checkoutModal.classList.add("show");
+
+}
+
+
+/* =========================================================
+   FECHAR CHECKOUT
+   ========================================================= */
+
 function fecharCheckout() {
 
-    document
-        .getElementById("checkoutModal")
-        .classList.remove("show");
+    const modal =
+        document.getElementById("checkoutModal");
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.remove("show");
+
 }
-        function updateTimer() {
-            const min = Math.floor(sessionTimeLeft / 60);
-            const sec = sessionTimeLeft % 60;
-            document.getElementById("session-timer").innerText = `Sessão expira em: ${min}m ${sec}s`;
-        }
 
-        function mostrarHistorico() {
-            const historico = JSON.parse(localStorage.getItem("historicoCompras")) || [];
-            const list = document.getElementById("historico-list");
-            list.innerHTML = "";
 
-            if (historico.length === 0) {
-                list.innerHTML = "<li>Nenhuma compra encontrada.</li>";
-            } else {
-                historico.forEach((compra, i) => {
-                    const li = document.createElement("li");
-                    li.innerHTML = `<strong>Compra #${i + 1}</strong><br>${compra.data}<br>${compra.itens.map(i => `${i.quantity}x ${i.name}`).join(", ")}<br><strong>Total:</strong> ${compra.total.toLocaleString()} Kzs`;
-                    list.appendChild(li);
-                });
+/* =========================================================
+   ABRIR / FECHAR CARRINHO
+   ========================================================= */
+
+function toggleCart() {
+
+    const cartContainer =
+        document.getElementById("cart-container");
+
+
+    if (!cartContainer) {
+        return;
+    }
+
+
+    cartContainer.classList.toggle("show");
+
+    resetSessionTimer();
+
+}
+
+
+/* =========================================================
+   TIMER DA SESSÃO
+   ========================================================= */
+
+function resetSessionTimer() {
+
+    clearInterval(sessionTimeout);
+
+    sessionTimeLeft = 15 * 60;
+
+    updateTimer();
+
+
+    sessionTimeout = setInterval(() => {
+
+        sessionTimeLeft--;
+
+        updateTimer();
+
+
+        if (sessionTimeLeft <= 0) {
+
+            clearInterval(sessionTimeout);
+
+            cart = [];
+
+            updateCart();
+
+            localStorage.removeItem("cart");
+
+
+            const cartContainer =
+                document.getElementById(
+                    "cart-container"
+                );
+
+
+            if (cartContainer) {
+
+                cartContainer.classList.remove("show");
+
             }
 
-            document.getElementById("historico-container").style.display = "block";
-            desenharGraficoHistorico(historico);
+
+            showToast(
+                "Sessão expirada! Carrinho limpo."
+            );
+
         }
 
-        function fecharHistorico() {
-            document.getElementById("historico-container").style.display = "none";
+    }, 1000);
+
+}
+
+
+/* =========================================================
+   ATUALIZAR TIMER
+   ========================================================= */
+
+function updateTimer() {
+
+    const timer =
+        document.getElementById("session-timer");
+
+
+    if (!timer) {
+        return;
+    }
+
+
+    const min =
+        Math.floor(sessionTimeLeft / 60);
+
+    const sec =
+        sessionTimeLeft % 60;
+
+
+    timer.innerText =
+        `Sessão expira em: ${min}m ${sec}s`;
+
+}
+
+
+/* =========================================================
+   HISTÓRICO DE COMPRAS
+   ========================================================= */
+
+function mostrarHistorico() {
+
+    const historico =
+        JSON.parse(
+            localStorage.getItem(
+                "historicoCompras"
+            )
+        ) || [];
+
+
+    const list =
+        document.getElementById(
+            "historico-list"
+        );
+
+
+    const container =
+        document.getElementById(
+            "historico-container"
+        );
+
+
+    if (!list || !container) {
+        return;
+    }
+
+
+    list.innerHTML = "";
+
+
+    if (historico.length === 0) {
+
+        list.innerHTML =
+            "<li>Nenhuma compra encontrada.</li>";
+
+    } else {
+
+        historico.forEach((compra, i) => {
+
+            const li =
+                document.createElement("li");
+
+
+            li.innerHTML = `
+
+                <strong>
+                    Compra #${i + 1}
+                </strong>
+
+                <br>
+
+                ${compra.data}
+
+                <br>
+
+                ${compra.itens
+                    .map(item =>
+                        `${item.quantity}x ${item.name}`
+                    )
+                    .join(", ")
+                }
+
+                <br>
+
+                <strong>Total:</strong>
+
+                ${compra.total.toLocaleString()} Kzs
+
+            `;
+
+
+            list.appendChild(li);
+
+        });
+
+    }
+
+
+    container.style.display = "block";
+
+    desenharGraficoHistorico(historico);
+
+}
+
+
+/* =========================================================
+   FECHAR HISTÓRICO
+   ========================================================= */
+
+function fecharHistorico() {
+
+    const container =
+        document.getElementById(
+            "historico-container"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.style.display = "none";
+
+}
+
+
+/* =========================================================
+   GRÁFICO DO HISTÓRICO
+   ========================================================= */
+
+function desenharGraficoHistorico(historico) {
+
+    const canvas =
+        document.getElementById(
+            "graficoHistorico"
+        );
+
+
+    if (!canvas || typeof Chart === "undefined") {
+        return;
+    }
+
+
+    const ctx =
+        canvas.getContext("2d");
+
+
+    if (historicoChart) {
+
+        historicoChart.destroy();
+
+    }
+
+
+    const labels =
+        historico.map(
+            (compra, i) => `#${i + 1}`
+        );
+
+
+    const valores =
+        historico.map(
+            compra => compra.total
+        );
+
+
+    historicoChart = new Chart(ctx, {
+
+        type: "bar",
+
+        data: {
+
+            labels: labels,
+
+            datasets: [{
+
+                label:
+                    "Total por Compra (Kzs)",
+
+                data: valores,
+
+                backgroundColor:
+                    "#007bff"
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true
+
+                }
+
+            }
+
         }
 
-        function desenharGraficoHistorico(historico) {
-            const ctx = document.getElementById("graficoHistorico").getContext("2d");
-            const labels = historico.map((c, i) => `#${i + 1}`);
-            const valores = historico.map(c => c.total);
+    });
 
-            new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels,
-                    datasets: [{
-                        label: "Total por Compra (Kzs)",
-                        data: valores,
-                        backgroundColor: "#007bff"
-                    }]
-                },
-                options: { responsive: true, scales: { y: { beginAtZero: true } } }
-            });
-        }
+}
 
-     function filterProducts(category, button) {
 
-    const products = document.querySelectorAll(".produto");
-    const buttons = document.querySelectorAll(".category-btn");
-    const count = document.getElementById("products-count");
+/* =========================================================
+   FILTRO DE PRODUTOS
+   ========================================================= */
+
+function filterProducts(category, button) {
+
+    const products =
+        document.querySelectorAll(".produto");
+
+    const buttons =
+        document.querySelectorAll(".category-btn");
+
+    const count =
+        document.getElementById("products-count");
+
 
     let visibleProducts = 0;
 
-    // Atualizar botão ativo
+
+    /* BOTÃO ATIVO */
+
     buttons.forEach(btn => {
+
         btn.classList.remove("active");
+
     });
 
-    button.classList.add("active");
 
-    // Filtrar produtos
+    if (button) {
+
+        button.classList.add("active");
+
+    }
+
+
+    /* FILTRAR */
+
     products.forEach(product => {
 
         const productCategory =
-            product.getAttribute("data-category");
+            product.getAttribute(
+                "data-category"
+            );
+
 
         const shouldShow =
             category === "all" ||
             productCategory === category;
+
 
         if (shouldShow) {
 
             product.style.display = "block";
 
             setTimeout(() => {
-                product.classList.remove("filter-hidden");
+
+                product.classList.remove(
+                    "filter-hidden"
+                );
+
             }, 10);
+
+
+            visibleProducts++;
+
+
+        } else {
+
+            product.classList.add(
+                "filter-hidden"
+            );
+
+
+            setTimeout(() => {
+
+                product.style.display = "none";
+
+            }, 250);
+
+        }
+
+    });
+
+
+    /* CONTADOR */
+
+    if (count) {
+
+        count.textContent =
+            visibleProducts +
+            (
+                visibleProducts === 1
+                    ? " produto"
+                    : " produtos"
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   PESQUISA DE PRODUTOS
+   ========================================================= */
+
+function searchProducts() {
+
+    const searchInput =
+        document.getElementById("search");
+
+
+    if (!searchInput) {
+        return;
+    }
+
+
+    const search =
+        searchInput.value
+            .toLowerCase()
+            .trim();
+
+
+    const produtos =
+        document.querySelectorAll(".produto");
+
+
+    let visibleProducts = 0;
+
+
+    produtos.forEach(produto => {
+
+        const texto =
+            produto.innerText.toLowerCase();
+
+
+        if (texto.includes(search)) {
+
+            produto.style.display = "block";
 
             visibleProducts++;
 
         } else {
 
-            product.classList.add("filter-hidden");
+            produto.style.display = "none";
 
-            setTimeout(() => {
-                product.style.display = "none";
-            }, 250);
         }
+
     });
 
-    // Atualizar contador
-    count.textContent =
-        visibleProducts +
-        (visibleProducts === 1 ? " produto" : " produtos");
-}
-      document.addEventListener("DOMContentLoaded", () => {
 
-    const hamburger = document.getElementById("hamburger");
-    const menu = document.getElementById("menu");
+    const count =
+        document.getElementById(
+            "products-count"
+        );
+
+
+    if (count) {
+
+        count.textContent =
+            visibleProducts +
+            (
+                visibleProducts === 1
+                    ? " produto"
+                    : " produtos"
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   MENU MOBILE
+   ========================================================= */
+
+function iniciarMenu() {
+
+    const hamburger =
+        document.getElementById(
+            "hamburger"
+        );
+
+
+    const menu =
+        document.getElementById(
+            "menu"
+        );
+
 
     if (!hamburger || !menu) {
-        console.log("Hamburger ou menu não encontrado");
         return;
     }
 
-    hamburger.addEventListener("click", () => {
 
-        hamburger.classList.toggle("active");
-        menu.classList.toggle("show");
+    const nav =
+        menu.closest("nav");
 
-    });
 
-    // Fechar menu ao clicar num link
-    menu.querySelectorAll("a").forEach(link => {
+    if (!nav) {
+        return;
+    }
 
-        link.addEventListener("click", () => {
 
-            hamburger.classList.remove("active");
-            menu.classList.remove("show");
+    /* ABRIR / FECHAR */
+
+    hamburger.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+
+            hamburger.classList.toggle(
+                "active"
+            );
+
+
+            nav.classList.toggle(
+                "menu-open"
+            );
+
+        }
+    );
+
+
+    /* FECHAR AO CLICAR NO LINK */
+
+    menu.querySelectorAll("a")
+        .forEach(link => {
+
+            link.addEventListener(
+                "click",
+                function () {
+
+                    hamburger.classList.remove(
+                        "active"
+                    );
+
+
+                    nav.classList.remove(
+                        "menu-open"
+                    );
+
+                }
+            );
 
         });
 
-    });
 
-});
+    /* FECHAR AO CLICAR FORA */
 
-        updateCart();
-        if (cart.length > 0) resetSessionTimer();
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener(
+        "click",
+        function (event) {
 
-    const firstButton =
-        document.querySelector(".category-btn.active");
+            if (
+                !nav.contains(event.target) &&
+                !hamburger.contains(event.target)
+            ) {
 
-    filterProducts("all", firstButton);
+                hamburger.classList.remove(
+                    "active"
+                );
 
-});
-        function searchProducts() {
-    const search = document
-        .getElementById("search")
-        .value
-        .toLowerCase();
 
-    const produtos =
-        document.querySelectorAll(".produto");
+                nav.classList.remove(
+                    "menu-open"
+                );
 
-    produtos.forEach(produto => {
+            }
 
-        const nome = produto
-            .querySelector("p")
-            .textContent
-            .toLowerCase();
+        }
+    );
 
-        produto.style.display =
-            nome.includes(search)
-            ? "block"
-            : "none";
-    });
+
+    /* FECHAR AO VOLTAR PARA DESKTOP */
+
+    window.addEventListener(
+        "resize",
+        function () {
+
+            if (window.innerWidth > 800) {
+
+                hamburger.classList.remove(
+                    "active"
+                );
+
+
+                nav.classList.remove(
+                    "menu-open"
+                );
+
+            }
+
+        }
+    );
+
 }
+
+
+/* =========================================================
+   ENVIAR PEDIDO PELO WHATSAPP
+   ========================================================= */
+
 function enviarPedidoWhatsApp() {
 
+    const nomeInput =
+        document.getElementById(
+            "clienteNome"
+        );
+
+
+    const telefoneInput =
+        document.getElementById(
+            "clienteTelefone"
+        );
+
+
+    const localInput =
+        document.getElementById(
+            "clienteLocal"
+        );
+
+
+    const obsInput =
+        document.getElementById(
+            "clienteObs"
+        );
+
+
+    if (
+        !nomeInput ||
+        !telefoneInput ||
+        !localInput
+    ) {
+        return;
+    }
+
+
     const nome =
-        document.getElementById("clienteNome").value.trim();
+        nomeInput.value.trim();
+
 
     const telefone =
-        document.getElementById("clienteTelefone").value.trim();
+        telefoneInput.value.trim();
+
 
     const local =
-        document.getElementById("clienteLocal").value.trim();
+        localInput.value.trim();
+
 
     const obs =
-        document.getElementById("clienteObs").value.trim();
+        obsInput
+            ? obsInput.value.trim()
+            : "";
+
 
     if (!nome || !telefone || !local) {
 
-        alert("Preencha o nome, telefone e localização.");
+        alert(
+            "Preencha o nome, telefone e localização."
+        );
 
         return;
     }
 
+
+    if (cart.length === 0) {
+
+        alert(
+            "O carrinho está vazio."
+        );
+
+        return;
+    }
+
+
     let total = 0;
+
 
     let mensagem =
         "🛍️ *NOVO PEDIDO — A.ROY_STORE*%0A%0A";
 
-    mensagem +=
-        "👤 *Cliente:* " + nome + "%0A";
 
     mensagem +=
-        "📱 *Telefone:* " + telefone + "%0A";
+        "👤 *Cliente:* " +
+        encodeURIComponent(nome) +
+        "%0A";
+
 
     mensagem +=
-        "📍 *Localização:* " + local + "%0A%0A";
+        "📱 *Telefone:* " +
+        encodeURIComponent(telefone) +
+        "%0A";
+
+
+    mensagem +=
+        "📍 *Localização:* " +
+        encodeURIComponent(local) +
+        "%0A%0A";
+
 
     mensagem +=
         "🛒 *PRODUTOS:*%0A";
+
 
     cart.forEach(item => {
 
         const subtotal =
             item.price * item.quantity;
 
+
         total += subtotal;
+
 
         mensagem +=
             "• " +
             item.quantity +
             "x " +
-            item.name +
+            encodeURIComponent(item.name) +
             " — " +
             subtotal.toLocaleString() +
             " Kzs%0A";
+
     });
+
 
     mensagem +=
         "%0A💰 *TOTAL: " +
         total.toLocaleString() +
         " Kzs*%0A";
 
+
     if (obs) {
 
         mensagem +=
             "%0A📝 *Observação:* " +
-            obs;
+            encodeURIComponent(obs);
+
     }
+
 
     const numero =
         "244929764090";
 
+
     const url =
         `https://wa.me/${numero}?text=${mensagem}`;
 
-    window.open(url, "_blank");
 
-    // guardar histórico
+    window.open(
+        url,
+        "_blank"
+    );
+
+
+    /* GUARDAR HISTÓRICO */
+
     const historico =
         JSON.parse(
-            localStorage.getItem("historicoCompras")
+            localStorage.getItem(
+                "historicoCompras"
+            )
         ) || [];
+
 
     historico.push({
 
-        data: new Date().toLocaleString(),
+        data:
+            new Date().toLocaleString(),
 
-        cliente: nome,
+        cliente:
+            nome,
 
-        telefone: telefone,
+        telefone:
+            telefone,
 
-        local: local,
+        local:
+            local,
 
-        itens: [...cart],
+        itens:
+            [...cart],
 
-        total: total
+        total:
+            total
+
     });
+
 
     localStorage.setItem(
         "historicoCompras",
         JSON.stringify(historico)
     );
+
+
+    /* LIMPAR CARRINHO */
 
     cart = [];
 
@@ -1649,70 +2359,300 @@ function enviarPedidoWhatsApp() {
 
     fecharCheckout();
 
-    toggleCart();
+
+    const cartContainer =
+        document.getElementById(
+            "cart-container"
+        );
+
+
+    if (cartContainer) {
+
+        cartContainer.classList.remove(
+            "show"
+        );
+
+    }
+
 }
-    </script>
 
-    <script>
-        function abrirProduto(nome, preco, imagem, armazenamento, cor, bateria, estado, imagens = []) {
 
-    document.getElementById("produtoNome").textContent = nome;
+/* =========================================================
+   MODAL DO PRODUTO
+   ========================================================= */
 
-    document.getElementById("produtoPreco").textContent =
-        preco.toLocaleString() + " Kzs";
+function abrirProduto(
+    nome,
+    preco,
+    imagem,
+    armazenamento,
+    cor,
+    bateria,
+    estado,
+    imagens = []
+) {
 
-    document.getElementById("produtoArmazenamento").textContent =
-        armazenamento;
 
-    document.getElementById("produtoCor").textContent =
-        cor;
+    const produtoNome =
+        document.getElementById(
+            "produtoNome"
+        );
 
-    document.getElementById("produtoBateria").textContent =
-        bateria;
 
-    document.getElementById("produtoEstado").textContent =
-        estado;
+    const produtoPreco =
+        document.getElementById(
+            "produtoPreco"
+        );
 
-    document.getElementById("produtoImagemPrincipal").src = imagem;
 
-    const galeria = document.getElementById("produtoGaleria");
+    const produtoArmazenamento =
+        document.getElementById(
+            "produtoArmazenamento"
+        );
 
-    galeria.innerHTML = "";
 
-    const fotos = [imagem, ...imagens];
+    const produtoCor =
+        document.getElementById(
+            "produtoCor"
+        );
 
-    fotos.forEach(foto => {
 
-        const img = document.createElement("img");
+    const produtoBateria =
+        document.getElementById(
+            "produtoBateria"
+        );
 
-        img.src = foto;
 
-        img.onclick = () => {
-            document.getElementById("produtoImagemPrincipal").src = foto;
+    const produtoEstado =
+        document.getElementById(
+            "produtoEstado"
+        );
+
+
+    const produtoImagemPrincipal =
+        document.getElementById(
+            "produtoImagemPrincipal"
+        );
+
+
+    const galeria =
+        document.getElementById(
+            "produtoGaleria"
+        );
+
+
+    const modal =
+        document.getElementById(
+            "productModal"
+        );
+
+
+    const botaoAdicionar =
+        document.getElementById(
+            "produtoAdicionar"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    if (produtoNome) {
+
+        produtoNome.textContent =
+            nome;
+
+    }
+
+
+    if (produtoPreco) {
+
+        produtoPreco.textContent =
+            preco.toLocaleString() +
+            " Kzs";
+
+    }
+
+
+    if (produtoArmazenamento) {
+
+        produtoArmazenamento.textContent =
+            armazenamento;
+
+    }
+
+
+    if (produtoCor) {
+
+        produtoCor.textContent =
+            cor;
+
+    }
+
+
+    if (produtoBateria) {
+
+        produtoBateria.textContent =
+            bateria;
+
+    }
+
+
+    if (produtoEstado) {
+
+        produtoEstado.textContent =
+            estado;
+
+    }
+
+
+    if (produtoImagemPrincipal) {
+
+        produtoImagemPrincipal.src =
+            imagem;
+
+    }
+
+
+    if (galeria) {
+
+        galeria.innerHTML = "";
+
+
+        const fotos =
+            [imagem, ...imagens];
+
+
+        fotos.forEach(foto => {
+
+            const img =
+                document.createElement("img");
+
+
+            img.src = foto;
+
+
+            img.onclick = () => {
+
+                if (produtoImagemPrincipal) {
+
+                    produtoImagemPrincipal.src =
+                        foto;
+
+                }
+
+            };
+
+
+            galeria.appendChild(img);
+
+        });
+
+    }
+
+
+    if (botaoAdicionar) {
+
+        botaoAdicionar.onclick = () => {
+
+            addToCart(
+                nome,
+                preco
+            );
+
         };
 
-        galeria.appendChild(img);
-    });
+    }
 
-    document.getElementById("produtoAdicionar").onclick = () => {
-        addToCart(nome, preco);
-    };
 
-    document.getElementById("productModal").classList.add("show");
+    modal.classList.add("show");
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+        "hidden";
+
 }
 
+
+/* =========================================================
+   FECHAR MODAL DO PRODUTO
+   ========================================================= */
 
 function fecharProduto(event) {
 
-    if (event && event.target.id !== "productModal")
+    if (
+        event &&
+        event.target.id !== "productModal"
+    ) {
         return;
+    }
 
-    document.getElementById("productModal").classList.remove("show");
+
+    const modal =
+        document.getElementById(
+            "productModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.remove("show");
 
     document.body.style.overflow = "";
+
 }
-    </script>
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* CARRINHO */
+
+        updateCart();
+
+
+        if (cart.length > 0) {
+
+            resetSessionTimer();
+
+        }
+
+
+        /* MENU */
+
+        iniciarMenu();
+
+
+        /* FILTRO INICIAL */
+
+        const firstButton =
+            document.querySelector(
+                ".category-btn.active"
+            );
+
+
+        if (firstButton) {
+
+            filterProducts(
+                "all",
+                firstButton
+            );
+
+        }
+
+
+    }
+);
+
+</script>
 </body>
 </html>
