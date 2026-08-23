@@ -68,7 +68,7 @@ input::placeholder{
 .btn {
     width: 100%;
     padding: 10px;
-    background: #1cd8d2cf;
+    background: #007BFF;
     border: none;
     color: white;
     border-radius: 5px;
@@ -78,7 +78,7 @@ input::placeholder{
 }
 
 .btn:hover {
-    background: #1cd8d28c;
+    background: #0056b3;
 }
 
 .forgot-password {
@@ -93,7 +93,7 @@ input::placeholder{
 }
 
 .forgot-password:hover {
-    color:#1cd8d2;
+    color:#434242;
     text-decoration: underline;
 }
 
