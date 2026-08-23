@@ -152,12 +152,34 @@ app.listen(
 
     }
 );
-        //    a.ROY_STORE
+      
+// ======================================================
+// INICIAR SERVIDOR
+// ======================================================
 
-const authRoutes = require("./routes/auth");
+app.listen(
+    PORT,
+    () => {
 
-app.use("/api/auth", authRoutes);
+        console.log("");
+        console.log("================================");
+        console.log("   A.ROY_STORE BACKEND");
+        console.log("================================");
+        console.log("");
+        console.log(
+            `🚀 Servidor: http://localhost:${PORT}`
+        );
+        console.log("");
+        console.log(
+            `🛍️ Site: http://localhost:${PORT}`
+        );
+        console.log("");
+        console.log(
+            `🔐 API: http://localhost:${PORT}/api`
+        );
+        console.log("");
+        console.log("================================");
+        console.log("");
 
-const cookieParser = require("cookie-parser");
-
-app.use(cookieParser());
+    }
+);

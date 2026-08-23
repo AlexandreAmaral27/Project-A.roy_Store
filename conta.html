@@ -253,6 +253,101 @@ main{
         padding:13px;
     }
 }
+/* ========================================
+   ÁREA DA CONTA
+======================================== */
+
+.user-info {
+    text-align: center;
+    color: white;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+
+    margin: 0 auto 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255,255,255,.15);
+
+    border-radius: 50%;
+
+    font-size: 35px;
+
+    border: 2px solid rgba(255,255,255,.3);
+}
+
+.user-info h3 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.user-info p {
+    color: #ddd;
+    margin-bottom: 12px;
+}
+
+.user-role {
+    display: inline-block;
+
+    padding: 6px 14px;
+
+    border-radius: 30px;
+
+    background: rgba(10,105,247,.25);
+
+    color: #fff;
+
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.account-actions {
+    margin-top: 30px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+.account-btn {
+    width: 100%;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: rgba(255,255,255,.12);
+
+    color: white;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    transition: .3s;
+}
+
+.account-btn:hover {
+    background: rgba(255,255,255,.22);
+
+    transform: translateY(-2px);
+}
+
+.logout-btn {
+    background: rgba(255,70,70,.2);
+}
+
+.logout-btn:hover {
+    background: rgba(255,70,70,.35);
+}
   </style>
 </head>
 <body>
@@ -411,6 +506,51 @@ main{
             </div>
 
         </div>
+        <!-- ÁREA DA CONTA -->
+<div id="userAccount" class="container hidden">
+
+    <h2>Minha Conta</h2>
+
+    <div class="user-info">
+
+        <div class="user-avatar">
+            👤
+        </div>
+
+        <h3 id="userName">Utilizador</h3>
+
+        <p id="userEmail">email@email.com</p>
+
+        <span id="userRole" class="user-role">
+            Cliente
+        </span>
+
+    </div>
+
+    <div class="account-actions">
+
+        <button class="account-btn" type="button">
+            🛍️ Meus Pedidos
+        </button>
+
+        <button class="account-btn" type="button">
+            ❤️ Favoritos
+        </button>
+
+        <button class="account-btn" type="button">
+            ⚙️ Configurações
+        </button>
+
+        <button
+            class="account-btn logout-btn"
+            type="button"
+            onclick="fazerLogout()">
+            🚪 Terminar Sessão
+        </button>
+
+    </div>
+
+</div>
 
     </div>
 
@@ -641,23 +781,34 @@ async function fazerLogout() {
 
 
 // ======================================================
-// VERIFICAR USUÁRIO
+// VERIFICAR USUÁRIO LOGADO
 // ======================================================
 
 async function verificarUsuario() {
 
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const registerForm =
+        document.getElementById("registerForm");
+
+    const userAccount =
+        document.getElementById("userAccount");
+
     try {
 
         const resposta =
-            await fetch(
-                "/api/auth/me",
-                {
-                    credentials: "include"
-                }
-            );
+            await fetch("/api/auth/me", {
+                credentials: "include"
+            });
 
         const dados =
             await resposta.json();
+
+
+        // ==============================================
+        // USUÁRIO ESTÁ LOGADO
+        // ==============================================
 
         if (dados.loggedIn) {
 
@@ -666,17 +817,79 @@ async function verificarUsuario() {
                 dados.user
             );
 
+            // Esconder login e registro
+            loginForm.classList.add("hidden");
+
+            registerForm.classList.add("hidden");
+
+            // Mostrar conta
+            userAccount.classList.remove("hidden");
+
+
+            // ==========================================
+            // PREENCHER DADOS
+            // ==========================================
+
+            document.getElementById("userName")
+                .textContent =
+                dados.user.name;
+
+            document.getElementById("userEmail")
+                .textContent =
+                dados.user.email;
+
+
+            // Mostrar tipo de usuário
+            const role =
+                document.getElementById("userRole");
+
+            if (dados.user.role === "admin") {
+
+                role.textContent =
+                    "Administrador";
+
+            } else {
+
+                role.textContent =
+                    "Cliente";
+
+            }
+
+        }
+
+        // ==============================================
+        // NÃO ESTÁ LOGADO
+        // ==============================================
+
+        else {
+
+            loginForm.classList.remove("hidden");
+
+            registerForm.classList.add("hidden");
+
+            userAccount.classList.add("hidden");
+
         }
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erro ao verificar usuário:",
+            error
+        );
 
     }
 
 }
+// ======================================================
+// VERIFICAR SESSÃO AO ABRIR A PÁGINA
+// ======================================================
 
+document.addEventListener("DOMContentLoaded", () => {
 
+    verificarUsuario();
+
+});
 // ======================================================
 // MOSTRAR / ESCONDER SENHA
 // ======================================================
@@ -704,7 +917,32 @@ function togglePassword(
     }
 
 }
+// ======================================================
+// ALTERNAR LOGIN / REGISTO
+// ======================================================
 
+function toggleForms() {
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const registerForm =
+        document.getElementById("registerForm");
+
+    loginForm.classList.toggle("hidden");
+    registerForm.classList.toggle("hidden");
+
+}
+// ======================================================
+// VERIFICAR SESSÃO AO ABRIR A PÁGINA
+// ======================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    verificarUsuario();
+
+});
 </script>
+
 </body>
 </html>
