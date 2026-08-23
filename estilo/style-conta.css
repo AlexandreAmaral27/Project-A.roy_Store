@@ -86,14 +86,14 @@ input::placeholder{
     text-align: center;
     font-size: 14px;
     margin-top: 10px;
-    color: #1cd8d28c;
+    color: #bdc0c0;
     cursor: pointer;
     transition: 0.3s;
     font-weight: bold;
 }
 
 .forgot-password:hover {
-    color:#434242;
+    color:#d7d7d7;
     text-decoration: underline;
 }
 
