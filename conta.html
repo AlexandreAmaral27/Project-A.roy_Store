@@ -566,10 +566,7 @@ main{
           hamburger.classList.toggle("active");
           menu.classList.toggle("show");
         });
-      </script>
-      
-       <script>
-
+    
 // ======================================================
 // LOGIN
 // ======================================================
@@ -597,24 +594,17 @@ async function fazerLogin() {
     try {
 
         const resposta =
-            await fetch(
-                "/api/auth/login",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    credentials: "include",
-
-                    body: JSON.stringify({
-                        email,
-                        password
-                    })
-                }
-            );
+            await fetch("http://localhost:3000/api/auth/login", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        email,
+        password
+    })
+});
 
         const dados =
             await resposta.json();

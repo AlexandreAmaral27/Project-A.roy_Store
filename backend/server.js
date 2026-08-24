@@ -8,7 +8,7 @@ const path = require("path");
 const db = require("./database/database");
 
 const authRoutes = require("./routes/auth");
-
+const productsRoutes = require("./routes/products");
 const {
     verificarToken,
     verificarAdmin
@@ -16,6 +16,9 @@ const {
 
 
 const app = express();
+
+console.log("🔥 ESTE É O SERVER.JS CORRETO");
+console.log("📁 Arquivo:", __filename);
 
 const PORT =
     process.env.PORT || 3000;
@@ -59,8 +62,16 @@ app.use(
     "/api/auth",
     authRoutes
 );
-
-
+app.use(
+    "/api/products",
+    productsRoutes
+);
+app.get("/api/products/teste-server", (req, res) => {
+    res.json({
+        success: true,
+        message: "Rota direta do server funcionando!"
+    });
+});
 // ======================================================
 // ROTA PRINCIPAL DA API
 // ======================================================
@@ -152,34 +163,6 @@ app.listen(
 
     }
 );
-      
-// ======================================================
-// INICIAR SERVIDOR
-// ======================================================
-
-app.listen(
-    PORT,
-    () => {
-
-        console.log("");
-        console.log("================================");
-        console.log("   A.ROY_STORE BACKEND");
-        console.log("================================");
-        console.log("");
-        console.log(
-            `🚀 Servidor: http://localhost:${PORT}`
-        );
-        console.log("");
-        console.log(
-            `🛍️ Site: http://localhost:${PORT}`
-        );
-        console.log("");
-        console.log(
-            `🔐 API: http://localhost:${PORT}/api`
-        );
-        console.log("");
-        console.log("================================");
-        console.log("");
-
-    }
-);
+    app.get("/teste-absoluto", (req, res) => {
+    res.send("SERVIDOR CORRETO");
+});  
