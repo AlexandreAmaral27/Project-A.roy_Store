@@ -1,4 +1,5 @@
 const express = require("express");
+
 const db = require("../database/database");
 
 const {
@@ -8,26 +9,74 @@ const {
 
 const router = express.Router();
 
-console.log("✅ products.js foi carregado");
-
 
 // ======================================================
-// TESTE
+// FUNÇÕES AUXILIARES
 // ======================================================
 
-router.get("/teste", (req, res) => {
+function validarId(id) {
+    const numero = Number(id);
 
-    res.json({
-        success: true,
-        message: "Products route funcionando!"
-    });
+    return Number.isInteger(numero) && numero > 0;
+}
 
-});
+
+function validarPreco(price) {
+
+    if (
+        price === undefined ||
+        price === null ||
+        price === ""
+    ) {
+        return false;
+    }
+
+    const numero = Number(price);
+
+    return Number.isFinite(numero) && numero >= 0;
+}
+
+
+function validarStock(stock) {
+
+    // Se não foi informado, assumimos 0
+    if (
+        stock === undefined ||
+        stock === null ||
+        stock === ""
+    ) {
+        return 0;
+    }
+
+    const numero = Number(stock);
+
+    // Stock deve ser número inteiro e nunca negativo
+    if (
+        !Number.isInteger(numero) ||
+        numero < 0
+    ) {
+        return null;
+    }
+
+    return numero;
+}
+
+
+function texto(valor) {
+
+    if (
+        valor === undefined ||
+        valor === null
+    ) {
+        return "";
+    }
+
+    return String(valor).trim();
+}
 
 
 // ======================================================
 // LISTAR TODOS OS PRODUTOS
-// GET /api/products
 // ======================================================
 
 router.get("/", (req, res) => {
@@ -40,14 +89,21 @@ router.get("/", (req, res) => {
             ORDER BY id DESC
         `).all();
 
-        res.json(products);
+        return res.json({
+            success: true,
+            products
+        });
 
     } catch (error) {
 
-        console.error("❌ Erro ao buscar produtos:", error);
+        console.error(
+            "❌ Erro ao buscar produtos:",
+            error
+        );
 
-        res.status(500).json({
-            error: "Erro ao buscar produtos"
+        return res.status(500).json({
+            success: false,
+            message: "Erro ao buscar produtos."
         });
 
     }
@@ -57,35 +113,54 @@ router.get("/", (req, res) => {
 
 // ======================================================
 // BUSCAR PRODUTO POR ID
-// GET /api/products/:id
 // ======================================================
 
 router.get("/:id", (req, res) => {
 
     try {
 
-        const product = db.prepare(`
-            SELECT *
-            FROM products
-            WHERE id = ?
-        `).get(req.params.id);
+        if (!validarId(req.params.id)) {
 
-        if (!product) {
-
-            return res.status(404).json({
-                error: "Produto não encontrado"
+            return res.status(400).json({
+                success: false,
+                message: "ID do produto inválido."
             });
 
         }
 
-        res.json(product);
+
+        const product = db.prepare(`
+            SELECT *
+            FROM products
+            WHERE id = ?
+        `).get(Number(req.params.id));
+
+
+        if (!product) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Produto não encontrado."
+            });
+
+        }
+
+
+        return res.json({
+            success: true,
+            product
+        });
 
     } catch (error) {
 
-        console.error("❌ Erro ao buscar produto:", error);
+        console.error(
+            "❌ Erro ao buscar produto:",
+            error
+        );
 
-        res.status(500).json({
-            error: "Erro ao buscar produto"
+        return res.status(500).json({
+            success: false,
+            message: "Erro ao buscar produto."
         });
 
     }
@@ -95,7 +170,7 @@ router.get("/:id", (req, res) => {
 
 // ======================================================
 // ADICIONAR PRODUTO
-// POST /api/products
+// SOMENTE ADMIN
 // ======================================================
 
 router.post(
@@ -106,88 +181,83 @@ router.post(
 
         try {
 
-            console.log("📦 DADOS RECEBIDOS DO PAINEL:");
-            console.log(req.body);
-
             const {
-
                 name,
                 description,
                 price,
                 image,
                 category,
                 stock,
-
-                // inglês
                 storage,
                 color,
                 battery,
-                condition,
-
-                // português - caso algum painel antigo envie assim
-                armazenamento,
-                cor,
-                bateria,
-                estado
-
+                condition
             } = req.body;
 
 
             // ==================================================
-            // NORMALIZAR OS DADOS
+            // NOME
             // ==================================================
 
-            const storageFinal =
-                storage ??
-                armazenamento ??
-                "";
+            const nomeProduto = texto(name);
 
-            const colorFinal =
-                color ??
-                cor ??
-                "";
-
-            const batteryFinal =
-                battery ??
-                bateria ??
-                "";
-
-            const conditionFinal =
-                condition ??
-                estado ??
-                "";
-
-
-            console.log("📱 DETALHES NORMALIZADOS:");
-
-            console.log({
-                name,
-                price,
-                storage: storageFinal,
-                color: colorFinal,
-                battery: batteryFinal,
-                condition: conditionFinal
-            });
-
-
-            // ==================================================
-            // VALIDAÇÃO
-            // ==================================================
-
-            if (!name || price === undefined) {
+            if (!nomeProduto) {
 
                 return res.status(400).json({
-                    error: "Nome e preço são obrigatórios"
+                    success: false,
+                    message: "O nome do produto é obrigatório."
+                });
+
+            }
+
+
+            if (nomeProduto.length > 150) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "O nome do produto é muito longo."
                 });
 
             }
 
 
             // ==================================================
-            // INSERIR
+            // PREÇO
             // ==================================================
 
-            const result = db.prepare(`
+            if (!validarPreco(price)) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "O preço do produto é inválido."
+                });
+
+            }
+
+            const precoNumerico = Number(price);
+
+
+            // ==================================================
+            // STOCK
+            // ==================================================
+
+            const estoqueNumerico = validarStock(stock);
+
+            if (estoqueNumerico === null) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "O stock deve ser um número inteiro igual ou superior a 0."
+                });
+
+            }
+
+
+            // ==================================================
+            // INSERIR PRODUTO
+            // ==================================================
+
+            const resultado = db.prepare(`
                 INSERT INTO products
                 (
                     name,
@@ -204,25 +274,25 @@ router.post(
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).run(
 
-                name,
+                nomeProduto,
 
-                description || "",
+                texto(description),
 
-                Number(price),
+                precoNumerico,
 
-                image || "",
+                texto(image),
 
-                category || "",
+                texto(category),
 
-                Number(stock) || 0,
+                estoqueNumerico,
 
-                storageFinal,
+                texto(storage),
 
-                colorFinal,
+                texto(color),
 
-                batteryFinal,
+                texto(battery),
 
-                conditionFinal
+                texto(condition)
 
             );
 
@@ -235,15 +305,18 @@ router.post(
                 SELECT *
                 FROM products
                 WHERE id = ?
-            `).get(result.lastInsertRowid);
+            `).get(resultado.lastInsertRowid);
 
 
-            console.log("✅ PRODUTO SALVO NO BANCO:");
-            console.log(product);
+            return res.status(201).json({
 
+                success: true,
 
-            res.status(201).json(product);
+                message: "Produto adicionado com sucesso.",
 
+                product
+
+            });
 
         } catch (error) {
 
@@ -252,8 +325,9 @@ router.post(
                 error
             );
 
-            res.status(500).json({
-                error: "Erro ao adicionar produto"
+            return res.status(500).json({
+                success: false,
+                message: "Erro ao adicionar produto."
             });
 
         }
@@ -264,7 +338,7 @@ router.post(
 
 // ======================================================
 // EDITAR PRODUTO
-// PUT /api/products/:id
+// SOMENTE ADMIN
 // ======================================================
 
 router.put(
@@ -275,75 +349,117 @@ router.put(
 
         try {
 
-            console.log("✏️ DADOS RECEBIDOS PARA EDIÇÃO:");
-            console.log(req.body);
+            // ==================================================
+            // VALIDAR ID
+            // ==================================================
+
+            if (!validarId(req.params.id)) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "ID do produto inválido."
+                });
+
+            }
+
+            const id = Number(req.params.id);
 
 
-            const {
+            // ==================================================
+            // VERIFICAR PRODUTO
+            // ==================================================
 
-                name,
-                description,
-                price,
-                image,
-                category,
-                stock,
-
-                storage,
-                color,
-                battery,
-                condition,
-
-                armazenamento,
-                cor,
-                bateria,
-                estado
-
-            } = req.body;
-
-
-            const existingProduct = db.prepare(`
-                SELECT *
+            const produtoExistente = db.prepare(`
+                SELECT id
                 FROM products
                 WHERE id = ?
-            `).get(req.params.id);
+            `).get(id);
 
 
-            if (!existingProduct) {
+            if (!produtoExistente) {
 
                 return res.status(404).json({
-                    error: "Produto não encontrado"
+                    success: false,
+                    message: "Produto não encontrado."
                 });
 
             }
 
 
             // ==================================================
-            // NORMALIZAR
+            // DADOS
             // ==================================================
 
-            const storageFinal =
-                storage ??
-                armazenamento ??
-                existingProduct.storage ??
-                "";
+            const {
+                name,
+                description,
+                price,
+                image,
+                category,
+                stock,
+                storage,
+                color,
+                battery,
+                condition
+            } = req.body;
 
-            const colorFinal =
-                color ??
-                cor ??
-                existingProduct.color ??
-                "";
 
-            const batteryFinal =
-                battery ??
-                bateria ??
-                existingProduct.battery ??
-                "";
+            // ==================================================
+            // NOME
+            // ==================================================
 
-            const conditionFinal =
-                condition ??
-                estado ??
-                existingProduct.condition ??
-                "";
+            const nomeProduto = texto(name);
+
+            if (!nomeProduto) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "O nome do produto é obrigatório."
+                });
+
+            }
+
+
+            if (nomeProduto.length > 150) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "O nome do produto é muito longo."
+                });
+
+            }
+
+
+            // ==================================================
+            // PREÇO
+            // ==================================================
+
+            if (!validarPreco(price)) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "O preço do produto é inválido."
+                });
+
+            }
+
+            const precoNumerico = Number(price);
+
+
+            // ==================================================
+            // STOCK
+            // ==================================================
+
+            const estoqueNumerico = validarStock(stock);
+
+            if (estoqueNumerico === null) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "O stock deve ser um número inteiro igual ou superior a 0."
+                });
+
+            }
 
 
             // ==================================================
@@ -356,83 +472,87 @@ router.put(
                 SET
 
                     name = ?,
+
                     description = ?,
+
                     price = ?,
+
                     image = ?,
+
                     category = ?,
+
                     stock = ?,
 
                     storage = ?,
+
                     color = ?,
+
                     battery = ?,
+
                     condition = ?,
 
                     updated_at = CURRENT_TIMESTAMP
 
                 WHERE id = ?
+
             `).run(
 
-                name ?? existingProduct.name,
+                nomeProduto,
 
-                description ??
-                    existingProduct.description ??
-                    "",
+                texto(description),
 
-                price ??
-                    existingProduct.price,
+                precoNumerico,
 
-                image ??
-                    existingProduct.image ??
-                    "",
+                texto(image),
 
-                category ??
-                    existingProduct.category ??
-                    "",
+                texto(category),
 
-                stock ??
-                    existingProduct.stock ??
-                    0,
+                estoqueNumerico,
 
-                storageFinal,
+                texto(storage),
 
-                colorFinal,
+                texto(color),
 
-                batteryFinal,
+                texto(battery),
 
-                conditionFinal,
+                texto(condition),
 
-                req.params.id
+                id
 
             );
 
 
             // ==================================================
-            // PRODUTO ATUALIZADO
+            // BUSCAR PRODUTO ATUALIZADO
             // ==================================================
 
-            const updatedProduct = db.prepare(`
+            const product = db.prepare(`
                 SELECT *
                 FROM products
                 WHERE id = ?
-            `).get(req.params.id);
+            `).get(id);
 
 
-            console.log("✅ PRODUTO ATUALIZADO:");
-            console.log(updatedProduct);
+            return res.json({
 
+                success: true,
 
-            res.json(updatedProduct);
+                message: "Produto atualizado com sucesso.",
 
+                product
+
+            });
 
         } catch (error) {
 
             console.error(
-                "❌ Erro ao editar produto:",
+                "❌ Erro ao atualizar produto:",
                 error
             );
 
-            res.status(500).json({
-                error: "Erro ao editar produto"
+            return res.status(500).json({
+                success: false,
+                message: "Erro ao atualizar produto."
             });
 
         }
@@ -443,7 +563,7 @@ router.put(
 
 // ======================================================
 // EXCLUIR PRODUTO
-// DELETE /api/products/:id
+// SOMENTE ADMIN
 // ======================================================
 
 router.delete(
@@ -454,32 +574,49 @@ router.delete(
 
         try {
 
-            const product = db.prepare(`
-                SELECT *
-                FROM products
+            // ==================================================
+            // VALIDAR ID
+            // ==================================================
+
+            if (!validarId(req.params.id)) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "ID do produto inválido."
+                });
+
+            }
+
+            const id = Number(req.params.id);
+
+
+            // ==================================================
+            // EXCLUIR
+            // ==================================================
+
+            const resultado = db.prepare(`
+                DELETE FROM products
                 WHERE id = ?
-            `).get(req.params.id);
+            `).run(id);
 
 
-            if (!product) {
+            if (resultado.changes === 0) {
 
                 return res.status(404).json({
-                    error: "Produto não encontrado"
+                    success: false,
+                    message: "Produto não encontrado."
                 });
 
             }
 
 
-            db.prepare(`
-                DELETE FROM products
-                WHERE id = ?
-            `).run(req.params.id);
+            return res.json({
 
+                success: true,
 
-            res.json({
-                message: "Produto excluído com sucesso"
+                message: "Produto excluído com sucesso."
+
             });
-
 
         } catch (error) {
 
@@ -488,60 +625,15 @@ router.delete(
                 error
             );
 
-            res.status(500).json({
-                error: "Erro ao excluir produto"
+            return res.status(500).json({
+                success: false,
+                message: "Erro ao excluir produto."
             });
 
         }
 
     }
 );
-
-
-module.exports = router;
-
-const express = require("express");
-const db = require("../database/database");
-
-const {
-    verificarToken,
-    verificarAdmin
-} = require("../middleware/auth");
-
-const router = express.Router();
-
-
-// ======================================================
-// LISTAR TODOS OS PRODUTOS
-// ======================================================
-
-router.get("/", (req, res) => {
-
-    try {
-
-        const products = db.prepare(`
-            SELECT *
-            FROM products
-            ORDER BY id DESC
-        `).all();
-
-        res.json(products);
-
-    } catch (error) {
-
-        console.error(
-            "Erro ao buscar produtos:",
-            error
-        );
-
-        res.status(500).json({
-            success: false,
-            message: "Erro ao buscar produtos."
-        });
-
-    }
-
-});
 
 
 // ======================================================
