@@ -1980,13 +1980,23 @@ async function carregarProdutos() {
             );
         }
 
-        const produtos = await resposta.json();
+        const dados = await resposta.json();
 
-        console.log("PRODUTOS RECEBIDOS:", produtos);
+console.log("📦 RESPOSTA DA API:", dados);
 
-        productList.innerHTML = "";
+if (!dados.success) {
+    throw new Error(
+        dados.message || "Erro ao carregar produtos."
+    );
+}
 
-        if (!Array.isArray(produtos) || produtos.length === 0) {
+const produtos = dados.products || [];
+
+console.log("✅ PRODUTOS RECEBIDOS:", produtos);
+
+productList.innerHTML = "";
+
+if (!Array.isArray(produtos) || produtos.length === 0) {
 
             productList.innerHTML = `
                 <p style="

@@ -905,23 +905,32 @@ async function carregarProdutos() {
     try {
 
         const resposta = await fetch(
-            "/api/products"
+            "/api/products",
+            {
+                credentials: "include"
+            }
         );
 
-        const produtos = await resposta.json();
+        const dados = await resposta.json();
 
-        if (!resposta.ok || !Array.isArray(produtos)) {
+        console.log("📦 Resposta da API:", dados);
+
+        if (!resposta.ok || !dados.success) {
 
             console.error(
-                "Erro ao carregar produtos:",
-                produtos
+                "❌ Erro ao carregar produtos:",
+                dados
             );
 
             return;
-
         }
 
-        console.log("Produtos recebidos:", produtos);
+        const produtos = dados.products || [];
+
+        console.log(
+            "✅ Produtos recebidos:",
+            produtos
+        );
 
         mostrarProdutos(produtos);
 
@@ -930,15 +939,13 @@ async function carregarProdutos() {
     } catch (error) {
 
         console.error(
-            "Erro ao carregar produtos:",
+            "❌ Erro ao carregar produtos:",
             error
         );
 
     }
 
 }
-
-
 // ======================================================
 // MOSTRAR PRODUTOS
 // ======================================================
