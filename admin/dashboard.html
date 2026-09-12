@@ -1351,89 +1351,77 @@ async function editarProduto(id) {
 
     try {
 
-        const resposta =
-            await fetch(
-                `/api/products/${id}`
-            );
-
-
-        const produto =
-            await resposta.json();
-
-
-        console.log(
-            "📦 Produto para editar:",
-            produto
+        const resposta = await fetch(
+            `/api/products/${id}`,
+            {
+                credentials: "include"
+            }
         );
 
+        const dados = await resposta.json();
 
-        if (!resposta.ok) {
+        console.log("📦 Produto para editar:", dados);
+
+        if (!resposta.ok || !dados.success) {
 
             alert(
-                produto.error ||
+                dados.message ||
+                dados.error ||
                 "Produto não encontrado."
             );
 
             return;
-
         }
 
+        // ==============================================
+        // PEGAR O PRODUTO CORRETO
+        // ==============================================
+
+        const produto = dados.product;
+
+        if (!produto) {
+
+            alert("Produto não encontrado na resposta da API.");
+
+            return;
+        }
 
         produtoEditando = id;
 
 
-        // ==================================================
+        // ==============================================
         // DADOS PRINCIPAIS
-        // ==================================================
+        // ==============================================
 
-        document.getElementById(
-            "name"
-        ).value =
+        document.getElementById("name").value =
             produto.name || "";
 
-
-        document.getElementById(
-            "description"
-        ).value =
+        document.getElementById("description").value =
             produto.description || "";
 
-
-        document.getElementById(
-            "price"
-        ).value =
+        document.getElementById("price").value =
             produto.price ?? "";
 
-
-        document.getElementById(
-            "image"
-        ).value =
+        document.getElementById("image").value =
             produto.image || "";
 
-
-        document.getElementById(
-            "category"
-        ).value =
+        document.getElementById("category").value =
             produto.category || "";
 
-
-        document.getElementById(
-            "stock"
-        ).value =
+        document.getElementById("stock").value =
             produto.stock ?? 0;
 
 
-        // ==================================================
+        // ==============================================
         // DETALHES DO PRODUTO
-        // ==================================================
+        // ==============================================
 
         const storage =
             document.getElementById("storage");
 
         if (storage) {
-
             storage.value =
                 produto.storage || "";
-
         }
 
 
@@ -1441,10 +1429,8 @@ async function editarProduto(id) {
             document.getElementById("color");
 
         if (color) {
-
             color.value =
                 produto.color || "";
-
         }
 
 
@@ -1452,10 +1438,8 @@ async function editarProduto(id) {
             document.getElementById("battery");
 
         if (battery) {
-
             battery.value =
                 produto.battery || "";
-
         }
 
 
@@ -1463,45 +1447,38 @@ async function editarProduto(id) {
             document.getElementById("condition");
 
         if (condition) {
-
             condition.value =
                 produto.condition || "";
-
         }
 
 
-        // ==================================================
+        // ==============================================
         // ALTERAR INTERFACE
-        // ==================================================
+        // ==============================================
 
-        document.getElementById(
-            "formTitulo"
-        ).textContent =
+        document.getElementById("formTitulo").textContent =
             "✏️ Editar produto";
 
-
-        document.getElementById(
-            "submitBtn"
-        ).textContent =
+        document.getElementById("submitBtn").textContent =
             "Guardar alterações";
 
-
-        document.getElementById(
-            "cancelBtn"
-        ).style.display =
+        document.getElementById("cancelBtn").style.display =
             "inline-block";
 
+
+        // ==============================================
+        // VOLTAR PARA O FORMULÁRIO
+        // ==============================================
 
         window.scrollTo({
             top: 0,
             behavior: "smooth"
         });
 
-
     } catch (error) {
 
         console.error(
-            "Erro ao carregar produto:",
+            "❌ Erro ao carregar produto:",
             error
         );
 
@@ -1512,8 +1489,6 @@ async function editarProduto(id) {
     }
 
 }
-
-
 // ======================================================
 // EXCLUIR PRODUTO
 // ======================================================

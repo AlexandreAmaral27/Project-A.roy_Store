@@ -227,4 +227,96 @@ db.exec(`
 // EXPORTAR DATABASE
 // ======================================================
 
+// ==========================================
+// TABELA DE PEDIDOS
+// ==========================================
+
+db.exec(`
+    CREATE TABLE IF NOT EXISTS orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        user_id INTEGER,
+
+        customer_name TEXT NOT NULL,
+        customer_phone TEXT NOT NULL,
+        delivery_address TEXT NOT NULL,
+        observation TEXT DEFAULT '',
+
+        payment_method TEXT NOT NULL DEFAULT 'whatsapp',
+
+        status TEXT NOT NULL DEFAULT 'pending',
+
+        total REAL NOT NULL DEFAULT 0,
+
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+        FOREIGN KEY (user_id)
+            REFERENCES users(id)
+            ON DELETE SET NULL
+    )
+`);
+
+console.log("✅ Tabela orders verificada.");
+
+
+// ==========================================
+// ITENS DOS PEDIDOS
+// ==========================================
+
+db.exec(`
+    CREATE TABLE IF NOT EXISTS order_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        order_id INTEGER NOT NULL,
+
+        product_id INTEGER,
+
+        product_name TEXT NOT NULL,
+
+        unit_price REAL NOT NULL,
+
+        quantity INTEGER NOT NULL,
+
+        subtotal REAL NOT NULL,
+
+        FOREIGN KEY (order_id)
+            REFERENCES orders(id)
+            ON DELETE CASCADE,
+
+        FOREIGN KEY (product_id)
+            REFERENCES products(id)
+            ON DELETE SET NULL
+    )
+`);
+
+console.log("✅ Tabela order_items verificada.");
+
+
+// ==========================================
+// ÍNDICES
+// ==========================================
+
+db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_orders_user_id
+    ON orders(user_id)
+`);
+
+db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_orders_status
+    ON orders(status)
+`);
+
+db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_order_items_order_id
+    ON order_items(order_id)
+`);
+
+db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_order_items_product_id
+    ON order_items(product_id)
+`);
+
+console.log("✅ Índices dos pedidos verificados.");
+
 module.exports = db;

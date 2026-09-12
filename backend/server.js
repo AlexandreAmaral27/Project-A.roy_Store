@@ -9,6 +9,7 @@ const db = require("./database/database");
 
 const authRoutes = require("./routes/auth");
 const productsRoutes = require("./routes/products");
+const ordersRoutes = require("./routes/orders");
 const {
     verificarToken,
     verificarAdmin
@@ -66,6 +67,11 @@ app.use(
     "/api/products",
     productsRoutes
 );
+app.use(
+    "/api/orders", 
+    ordersRoutes
+);
+
 app.get("/api/products/teste-server", (req, res) => {
     res.json({
         success: true,
