@@ -1223,6 +1223,210 @@
     }
 
 }
+/* =====================================================
+   PEDIDOS - PESQUISA E FILTROS
+===================================================== */
+
+.orders-toolbar {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 20px 0;
+
+    flex-wrap: wrap;
+
+}
+
+
+/* PESQUISA */
+
+.orders-search {
+
+    flex: 1;
+
+    min-width: 260px;
+
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 14px;
+
+    background: #111827;
+
+    border: 1px solid #263244;
+
+    border-radius: 10px;
+
+}
+
+
+.orders-search span {
+
+    font-size: 15px;
+
+    opacity: .7;
+
+}
+
+
+.orders-search input {
+
+    width: 100%;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: #fff;
+
+    font-size: 14px;
+
+}
+
+
+.orders-search input::placeholder {
+
+    color: #7d8798;
+
+}
+
+
+/* FILTRO */
+
+.orders-filter select {
+
+    height: 44px;
+
+    padding: 0 38px 0 14px;
+
+    border-radius: 10px;
+
+    border: 1px solid #263244;
+
+    background: #111827;
+
+    color: #fff;
+
+    font-size: 14px;
+
+    outline: none;
+
+    cursor: pointer;
+
+}
+
+
+.orders-filter select:focus {
+
+    border-color: #168cff;
+
+}
+
+
+/* CONTADOR */
+
+.orders-counter {
+
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0 16px;
+
+    border-radius: 10px;
+
+    background: #111827;
+
+    border: 1px solid #263244;
+
+    color: #aeb8c8;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+
+}
+
+
+/* SELECT DO ESTADO NA TABELA */
+
+.order-status-select {
+
+    min-width: 145px;
+
+    padding: 7px 10px;
+
+    border-radius: 8px;
+
+    border: 1px solid #263244;
+
+    background: #111827;
+
+    color: #fff;
+
+    outline: none;
+
+    cursor: pointer;
+
+}
+
+
+.order-status-select:focus {
+
+    border-color: #168cff;
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .orders-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .orders-search {
+
+        width: 100%;
+
+        min-width: 0;
+
+    }
+
+
+    .orders-filter select {
+
+        width: 100%;
+
+    }
+
+
+    .orders-counter {
+
+        justify-content: center;
+
+    }
+
+}
     </style>
 
 </head>
@@ -1629,10 +1833,8 @@
 <div class="card">
 
     <div class="section-header">
-
         <div>
             <h2>🛍️ Pedidos</h2>
-
             <p class="section-description">
                 Gerencie os pedidos realizados na loja.
             </p>
@@ -1645,12 +1847,10 @@
         >
             🔄 Atualizar
         </button>
-
     </div>
 
 
-    <!-- PESQUISA E FILTROS -->
-
+    <!-- BARRA DE PESQUISA E FILTROS -->
     <div class="orders-toolbar">
 
         <div class="orders-search">
@@ -1658,64 +1858,64 @@
             <span>🔎</span>
 
             <input
-                type="search"
+                type="text"
                 id="pesquisaPedidos"
-                placeholder="Pesquisar por cliente, telefone ou nº do pedido..."
+                placeholder="Pesquisar por pedido, cliente ou telefone..."
                 oninput="filtrarPedidos()"
             >
 
         </div>
 
 
-        <select
-            id="filtroEstado"
-            onchange="filtrarPedidos()"
-            class="orders-filter"
+        <div class="orders-filter">
+
+            <select
+                id="filtroEstado"
+                onchange="filtrarPedidos()"
+            >
+
+                <option value="">Todos os estados</option>
+
+                <option value="pending">
+                    Pendentes
+                </option>
+
+                <option value="confirmed">
+                    Confirmados
+                </option>
+
+                <option value="processing">
+                    Em processamento
+                </option>
+
+                <option value="shipped">
+                    Enviados
+                </option>
+
+                <option value="completed">
+                    Concluídos
+                </option>
+
+                <option value="cancelled">
+                    Cancelados
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div
+            class="orders-counter"
+            id="contadorPedidos"
         >
-
-            <option value="todos">
-                Todos os estados
-            </option>
-
-            <option value="pending">
-                Pendentes
-            </option>
-
-            <option value="confirmed">
-                Confirmados
-            </option>
-
-            <option value="processing">
-                Em processamento
-            </option>
-
-            <option value="shipped">
-                Enviados
-            </option>
-
-            <option value="completed">
-                Concluídos
-            </option>
-
-            <option value="cancelled">
-                Cancelados
-            </option>
-
-        </select>
+            0 pedidos
+        </div>
 
     </div>
 
 
-    <!-- CONTADOR -->
-
-    <div
-        id="contadorPedidos"
-        class="orders-counter"
-    >
-        0 pedidos
-    </div>
-
-
+    <!-- TABELA -->
     <div class="table-wrapper">
 
         <table>
@@ -1723,23 +1923,34 @@
             <thead>
 
                 <tr>
+
                     <th>Pedido</th>
+
                     <th>Cliente</th>
+
                     <th>Telefone</th>
+
                     <th>Total</th>
+
                     <th>Estado</th>
+
                     <th>Data</th>
+
                     <th>Ações</th>
+
                 </tr>
 
             </thead>
 
+
             <tbody id="ordersTable">
 
                 <tr>
+
                     <td colspan="7">
                         Carregando pedidos...
                     </td>
+
                 </tr>
 
             </tbody>
@@ -2641,7 +2852,6 @@ function formatarDataPedido(data) {
     }
 }
 
-
 async function carregarPedidos() {
 
     try {
@@ -2653,14 +2863,17 @@ async function carregarPedidos() {
             }
         );
 
+
         const dados = await resposta.json();
 
-        console.log("🛒 Pedidos recebidos:", dados);
 
-        if (
-            !resposta.ok ||
-            !dados.success
-        ) {
+        console.log(
+            "🛒 Pedidos recebidos:",
+            dados
+        );
+
+
+        if (!resposta.ok || !dados.success) {
 
             throw new Error(
                 dados.message ||
@@ -2669,12 +2882,14 @@ async function carregarPedidos() {
 
         }
 
-        todosOsPedidos =
-            Array.isArray(dados.orders)
-                ? dados.orders
-                : [];
+
+        todosOsPedidos = Array.isArray(dados.orders)
+            ? dados.orders
+            : [];
+
 
         filtrarPedidos();
+
 
     } catch (error) {
 
@@ -2683,10 +2898,10 @@ async function carregarPedidos() {
             error
         );
 
+
         const tabela =
-            document.getElementById(
-                "ordersTable"
-            );
+            document.getElementById("ordersTable");
+
 
         if (tabela) {
 
@@ -2706,70 +2921,83 @@ async function carregarPedidos() {
 
 function filtrarPedidos() {
 
+    const campoPesquisa =
+        document.getElementById("pesquisaPedidos");
+
+
+    const campoEstado =
+        document.getElementById("filtroEstado");
+
+
+    const contador =
+        document.getElementById("contadorPedidos");
+
+
     const pesquisa =
-        (
-            document.getElementById(
-                "pesquisaPedidos"
-            )?.value || ""
-        )
-        .trim()
-        .toLowerCase();
+        campoPesquisa
+            ? campoPesquisa.value
+                .trim()
+                .toLowerCase()
+            : "";
 
 
     const estado =
-        document.getElementById(
-            "filtroEstado"
-        )?.value || "todos";
+        campoEstado
+            ? campoEstado.value
+            : "";
 
 
     const pedidosFiltrados =
-        todosOsPedidos.filter(
-            pedido => {
+        todosOsPedidos.filter(pedido => {
 
-                const textoPesquisa = `
-                    ${pedido.id}
-                    ${pedido.customer_name || ""}
-                    ${pedido.customer_phone || ""}
-                `
-                .toLowerCase();
+            const id =
+                String(pedido.id || "")
+                    .toLowerCase();
 
 
-                const correspondePesquisa =
-                    !pesquisa ||
-                    textoPesquisa.includes(
-                        pesquisa
-                    );
+            const nome =
+                String(pedido.customer_name || "")
+                    .toLowerCase();
 
 
-                const correspondeEstado =
-                    estado === "todos" ||
-                    pedido.status === estado;
+            const telefone =
+                String(pedido.customer_phone || "")
+                    .toLowerCase();
 
 
-                return (
-                    correspondePesquisa &&
-                    correspondeEstado
-                );
+            const correspondePesquisa =
+                !pesquisa ||
+                id.includes(pesquisa) ||
+                nome.includes(pesquisa) ||
+                telefone.includes(pesquisa);
 
-            }
-        );
+
+            const correspondeEstado =
+                !estado ||
+                pedido.status === estado;
+
+
+            return (
+                correspondePesquisa &&
+                correspondeEstado
+            );
+
+        });
 
 
     mostrarPedidos(pedidosFiltrados);
 
 
-    const contador =
-        document.getElementById(
-            "contadorPedidos"
-        );
-
-
     if (contador) {
 
+        const quantidade =
+            pedidosFiltrados.length;
+
+
         contador.textContent =
-            pedidosFiltrados.length === 1
+            quantidade === 1
                 ? "1 pedido"
-                : `${pedidosFiltrados.length} pedidos`;
+                : `${quantidade} pedidos`;
 
     }
 
