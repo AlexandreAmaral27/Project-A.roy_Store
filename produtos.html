@@ -747,10 +747,11 @@ function alterarQuantidade(index, quantidade) {
    ADICIONAR AO CARRINHO
    ========================================================= */
 
-function addToCart(name, price) {
+function addToCart(productId, name, price) {
 
-    const existing =
-        cart.find(item => item.name === name);
+    const existing = cart.find(
+        item => Number(item.product_id) === Number(productId)
+    );
 
 
     if (existing) {
@@ -760,13 +761,10 @@ function addToCart(name, price) {
     } else {
 
         cart.push({
-
+            product_id: Number(productId),
             name: name,
-
-            price: price,
-
+            price: Number(price),
             quantity: 1
-
         });
 
     }
@@ -779,10 +777,7 @@ function addToCart(name, price) {
     );
 
     resetSessionTimer();
-
 }
-
-
 /* =========================================================
    REMOVER DO CARRINHO
    ========================================================= */
@@ -1519,33 +1514,23 @@ function iniciarMenu() {
 
 
 /* =========================================================
-   ENVIAR PEDIDO PELO WHATSAPP
+   ENVIAR PEDIDO
+   BACKEND + WHATSAPP
    ========================================================= */
 
-function enviarPedidoWhatsApp() {
+async function enviarPedidoWhatsApp() {
 
     const nomeInput =
-        document.getElementById(
-            "clienteNome"
-        );
-
+        document.getElementById("clienteNome");
 
     const telefoneInput =
-        document.getElementById(
-            "clienteTelefone"
-        );
-
+        document.getElementById("clienteTelefone");
 
     const localInput =
-        document.getElementById(
-            "clienteLocal"
-        );
-
+        document.getElementById("clienteLocal");
 
     const obsInput =
-        document.getElementById(
-            "clienteObs"
-        );
+        document.getElementById("clienteObs");
 
 
     if (
@@ -1560,20 +1545,21 @@ function enviarPedidoWhatsApp() {
     const nome =
         nomeInput.value.trim();
 
-
     const telefone =
         telefoneInput.value.trim();
 
-
     const local =
         localInput.value.trim();
-
 
     const obs =
         obsInput
             ? obsInput.value.trim()
             : "";
 
+
+    // ----------------------------------------------
+    // VALIDAÇÃO
+    // ----------------------------------------------
 
     if (!nome || !telefone || !local) {
 
@@ -1585,7 +1571,7 @@ function enviarPedidoWhatsApp() {
     }
 
 
-    if (cart.length === 0) {
+    if (!Array.isArray(cart) || cart.length === 0) {
 
         alert(
             "O carrinho está vazio."
@@ -1595,154 +1581,354 @@ function enviarPedidoWhatsApp() {
     }
 
 
-    let total = 0;
+    // ----------------------------------------------
+    // VERIFICAR SE O CARRINHO TEM IDs
+    // ----------------------------------------------
+
+    const itemSemId = cart.find(
+        item =>
+            !item.product_id ||
+            !Number.isInteger(
+                Number(item.product_id)
+            )
+    );
 
 
-    let mensagem =
-        "🛍️ *NOVO PEDIDO — A.ROY_STORE*%0A%0A";
+    if (itemSemId) {
 
+        alert(
+            "Este carrinho contém produtos antigos. " +
+            "Limpe o carrinho e adicione os produtos novamente."
+        );
 
-    mensagem +=
-        "👤 *Cliente:* " +
-        encodeURIComponent(nome) +
-        "%0A";
-
-
-    mensagem +=
-        "📱 *Telefone:* " +
-        encodeURIComponent(telefone) +
-        "%0A";
-
-
-    mensagem +=
-        "📍 *Localização:* " +
-        encodeURIComponent(local) +
-        "%0A%0A";
-
-
-    mensagem +=
-        "🛒 *PRODUTOS:*%0A";
-
-
-    cart.forEach(item => {
-
-        const subtotal =
-            item.price * item.quantity;
-
-
-        total += subtotal;
-
-
-        mensagem +=
-            "• " +
-            item.quantity +
-            "x " +
-            encodeURIComponent(item.name) +
-            " — " +
-            subtotal.toLocaleString() +
-            " Kzs%0A";
-
-    });
-
-
-    mensagem +=
-        "%0A💰 *TOTAL: " +
-        total.toLocaleString() +
-        " Kzs*%0A";
-
-
-    if (obs) {
-
-        mensagem +=
-            "%0A📝 *Observação:* " +
-            encodeURIComponent(obs);
-
+        return;
     }
 
 
-    const numero =
-        "244929764090";
+    // ----------------------------------------------
+    // PREPARAR ITENS PARA O BACKEND
+    // ----------------------------------------------
+
+    const items = cart.map(item => ({
+
+        product_id:
+            Number(item.product_id),
+
+        quantity:
+            Number(item.quantity)
+
+    }));
 
 
-    const url =
-        `https://wa.me/${numero}?text=${mensagem}`;
+    // ----------------------------------------------
+    // ABRIR JANELA DO WHATSAPP
+    // ----------------------------------------------
+    // Abrimos imediatamente para evitar bloqueio
+    // do navegador depois do fetch.
 
-
-    window.open(
-        url,
-        "_blank"
-    );
-
-
-    /* GUARDAR HISTÓRICO */
-
-    const historico =
-        JSON.parse(
-            localStorage.getItem(
-                "historicoCompras"
-            )
-        ) || [];
-
-
-    historico.push({
-
-        data:
-            new Date().toLocaleString(),
-
-        cliente:
-            nome,
-
-        telefone:
-            telefone,
-
-        local:
-            local,
-
-        itens:
-            [...cart],
-
-        total:
-            total
-
-    });
-
-
-    localStorage.setItem(
-        "historicoCompras",
-        JSON.stringify(historico)
-    );
-
-
-    /* LIMPAR CARRINHO */
-
-    cart = [];
-
-    updateCart();
-
-    fecharCheckout();
-
-
-    const cartContainer =
-        document.getElementById(
-            "cart-container"
+    const whatsappWindow =
+        window.open(
+            "about:blank",
+            "_blank"
         );
 
 
-    if (cartContainer) {
+    try {
 
-        cartContainer.classList.remove(
-            "show"
+        // ------------------------------------------
+        // ENVIAR PEDIDO PARA O BACKEND
+        // ------------------------------------------
+
+        const resposta = await fetch(
+            "/api/orders",
+            {
+                method: "POST",
+
+                credentials: "include",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    customer_name:
+                        nome,
+
+                    customer_phone:
+                        telefone,
+
+                    delivery_address:
+                        local,
+
+                    observation:
+                        obs,
+
+                    payment_method:
+                        "whatsapp",
+
+                    items:
+                        items
+
+                })
+            }
+        );
+
+
+        const dados =
+            await resposta.json();
+
+
+        console.log(
+            "📦 PEDIDO CRIADO:",
+            dados
+        );
+
+
+        // ------------------------------------------
+        // ERRO DO BACKEND
+        // ------------------------------------------
+
+        if (
+            !resposta.ok ||
+            !dados.success
+        ) {
+
+            if (
+                whatsappWindow &&
+                !whatsappWindow.closed
+            ) {
+                whatsappWindow.close();
+            }
+
+
+            alert(
+                dados.message ||
+                "Não foi possível criar o pedido."
+            );
+
+            return;
+        }
+
+
+        const pedido =
+            dados.order;
+
+
+        // ------------------------------------------
+        // CRIAR MENSAGEM DO WHATSAPP
+        // ------------------------------------------
+
+        let mensagem =
+            "🛍️ *NOVO PEDIDO — A.ROY_STORE*%0A%0A";
+
+
+        mensagem +=
+            "🔢 *Pedido:* #" +
+            pedido.id +
+            "%0A";
+
+
+        mensagem +=
+            "👤 *Cliente:* " +
+            encodeURIComponent(nome) +
+            "%0A";
+
+
+        mensagem +=
+            "📱 *Telefone:* " +
+            encodeURIComponent(telefone) +
+            "%0A";
+
+
+        mensagem +=
+            "📍 *Localização:* " +
+            encodeURIComponent(local) +
+            "%0A%0A";
+
+
+        mensagem +=
+            "🛒 *PRODUTOS:*%0A";
+
+
+        pedido.items.forEach(item => {
+
+            mensagem +=
+                "• " +
+                item.quantity +
+                "x " +
+                encodeURIComponent(
+                    item.product_name
+                ) +
+                " — " +
+                Number(
+                    item.subtotal
+                ).toLocaleString("pt-AO") +
+                " Kz%0A";
+
+        });
+
+
+        mensagem +=
+            "%0A💰 *TOTAL: " +
+            Number(
+                pedido.total
+            ).toLocaleString("pt-AO") +
+            " Kz*%0A";
+
+
+        if (obs) {
+
+            mensagem +=
+                "%0A📝 *Observação:* " +
+                encodeURIComponent(obs);
+
+        }
+
+
+        // ------------------------------------------
+        // NÚMERO DO WHATSAPP
+        // ------------------------------------------
+
+        const numero =
+            "244929764090";
+
+
+        const url =
+            `https://wa.me/${numero}?text=${mensagem}`;
+
+
+        // ------------------------------------------
+        // ENVIAR PARA WHATSAPP
+        // ------------------------------------------
+
+        if (
+            whatsappWindow &&
+            !whatsappWindow.closed
+        ) {
+
+            whatsappWindow.location.href =
+                url;
+
+        } else {
+
+            window.location.href =
+                url;
+
+        }
+
+
+        // ------------------------------------------
+        // HISTÓRICO LOCAL
+        // ------------------------------------------
+
+        const historico =
+            JSON.parse(
+                localStorage.getItem(
+                    "historicoCompras"
+                )
+            ) || [];
+
+
+        historico.push({
+
+            pedidoId:
+                pedido.id,
+
+            data:
+                new Date().toLocaleString(),
+
+            cliente:
+                nome,
+
+            telefone:
+                telefone,
+
+            local:
+                local,
+
+            itens:
+                [...cart],
+
+            total:
+                Number(pedido.total)
+
+        });
+
+
+        localStorage.setItem(
+            "historicoCompras",
+            JSON.stringify(historico)
+        );
+
+
+        // ------------------------------------------
+        // LIMPAR CARRINHO
+        // ------------------------------------------
+
+        cart = [];
+
+        updateCart();
+
+        localStorage.removeItem(
+            "cart"
+        );
+
+
+        fecharCheckout();
+
+
+        const cartContainer =
+            document.getElementById(
+                "cart-container"
+            );
+
+
+        if (cartContainer) {
+
+            cartContainer.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        showToast(
+            `Pedido #${pedido.id} criado com sucesso!`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erro ao criar pedido:",
+            error
+        );
+
+
+        if (
+            whatsappWindow &&
+            !whatsappWindow.closed
+        ) {
+            whatsappWindow.close();
+        }
+
+
+        alert(
+            "Não foi possível enviar o pedido. " +
+            "Verifique se o servidor está funcionando."
         );
 
     }
 
 }
 
-
 /* =========================================================
    MODAL DO PRODUTO
    ========================================================= */
 function abrirProduto(
+    productId,
     nome,
     preco,
     imagem,
@@ -1884,11 +2070,11 @@ function abrirProduto(
 
     botaoAdicionar.onclick = () => {
 
-        addToCart(
-            nome,
-            Number(preco)
-        );
-
+     addToCart(
+    productId,
+    nome,
+    Number(preco)
+);
     };
 
 
@@ -2315,10 +2501,11 @@ if (!Array.isArray(produtos) || produtos.length === 0) {
 
                         event.stopPropagation();
 
-                        addToCart(
-                            nome,
-                            preco
-                        );
+                    addToCart(
+                        produto.id,
+                        nome,
+                        preco
+);
 
                     }
                 );
@@ -2334,17 +2521,17 @@ if (!Array.isArray(produtos) || produtos.length === 0) {
                 "click",
                 function() {
 
-                    abrirProduto(
-                        nome,
-                        preco,
-                        imagem,
-                        armazenamento || "Não informado",
-                        cor || "Não informado",
-                        bateria || "Não informado",
-                        estado || "Não informado",
-                        imagens
-                    );
-
+                abrirProduto(
+                    produto.id,
+                    nome,
+                    preco,
+                    imagem,
+                    armazenamento || "Não informado",
+                    cor || "Não informado",
+                    bateria || "Não informado",
+                    estado || "Não informado",
+                    imagens
+);
                 }
             );
 
