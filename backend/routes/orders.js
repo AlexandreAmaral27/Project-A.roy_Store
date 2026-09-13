@@ -109,6 +109,7 @@ router.post("/", async (req, res) => {
         // ----------------------------------------------
 
         const produtosProcessados = [];
+
         let total = 0;
 
 
@@ -117,6 +118,10 @@ router.post("/", async (req, res) => {
             const productId = Number(item.product_id);
             const quantidade = Number(item.quantity);
 
+
+            // ------------------------------------------
+            // VALIDAR ID
+            // ------------------------------------------
 
             if (!validarId(productId)) {
 
@@ -127,6 +132,10 @@ router.post("/", async (req, res) => {
 
             }
 
+
+            // ------------------------------------------
+            // VALIDAR QUANTIDADE
+            // ------------------------------------------
 
             if (
                 !Number.isInteger(quantidade) ||
@@ -142,7 +151,7 @@ router.post("/", async (req, res) => {
 
 
             // ------------------------------------------
-            // BUSCAR PRODUTO REAL NO BANCO
+            // BUSCAR PRODUTO NO BANCO
             // ------------------------------------------
 
             const produto = db.prepare(`
@@ -160,7 +169,8 @@ router.post("/", async (req, res) => {
 
                 return res.status(404).json({
                     success: false,
-                    message: `Produto com ID ${productId} não encontrado.`
+                    message:
+                        `Produto com ID ${productId} não encontrado.`
                 });
 
             }
@@ -170,7 +180,7 @@ router.post("/", async (req, res) => {
             // VERIFICAR STOCK
             // ------------------------------------------
 
-            if (quantidade > produto.stock) {
+            if (quantidade > Number(produto.stock)) {
 
                 return res.status(400).json({
                     success: false,
@@ -183,7 +193,7 @@ router.post("/", async (req, res) => {
 
 
             // ------------------------------------------
-            // CALCULAR PREÇO PELO BANCO
+            // CALCULAR PREÇO REAL
             // ------------------------------------------
 
             const preco = Number(produto.price);
@@ -198,14 +208,14 @@ router.post("/", async (req, res) => {
                 product_name: produto.name,
                 unit_price: preco,
                 quantity: quantidade,
-                subtotal
+                subtotal: subtotal
             });
 
         }
 
 
         // ----------------------------------------------
-        // PAGAMENTO
+        // MÉTODO DE PAGAMENTO
         // ----------------------------------------------
 
         const metodoPagamento =
@@ -213,15 +223,16 @@ router.post("/", async (req, res) => {
 
 
         // ----------------------------------------------
-        // CRIAR PEDIDO + ITENS + STOCK
-        // TUDO DENTRO DE UMA TRANSAÇÃO
+        // CRIAR PEDIDO
+        // ITENS + STOCK
+        // TUDO EM UMA TRANSAÇÃO
         // ----------------------------------------------
 
         const criarPedido = db.transaction(() => {
 
 
             // ------------------------------------------
-            // CRIAR PEDIDO
+            // INSERIR PEDIDO
             // ------------------------------------------
 
             const resultadoPedido = db.prepare(`
@@ -280,11 +291,14 @@ router.post("/", async (req, res) => {
                     stock = stock - ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
+                  AND stock >= ?
             `);
 
 
             for (const item of produtosProcessados) {
 
+
+                // Inserir item
                 inserirItem.run(
                     orderId,
                     item.product_id,
@@ -295,10 +309,22 @@ router.post("/", async (req, res) => {
                 );
 
 
-                atualizarStock.run(
+                // Retirar stock
+                const resultadoStock = atualizarStock.run(
                     item.quantity,
-                    item.product_id
+                    item.product_id,
+                    item.quantity
                 );
+
+
+                // Segurança contra stock insuficiente
+                if (resultadoStock.changes === 0) {
+
+                    throw new Error(
+                        `Stock insuficiente para o produto ${item.product_id}.`
+                    );
+
+                }
 
             }
 
@@ -428,6 +454,149 @@ router.get(
 
 
 // ======================================================
+// ESTATÍSTICAS
+// IMPORTANTE:
+// ESTA ROTA TEM QUE FICAR ANTES DE /:id
+//
+// GET /api/orders/stats
+// ======================================================
+
+router.get(
+    "/stats",
+    verificarToken,
+    verificarAdmin,
+    (req, res) => {
+
+        try {
+
+
+            // ------------------------------------------
+            // TOTAL DE PEDIDOS
+            // ------------------------------------------
+
+            const totalPedidos = db.prepare(`
+                SELECT COUNT(*) AS total
+                FROM orders
+            `).get().total;
+
+
+            // ------------------------------------------
+            // PEDIDOS PENDENTES
+            // ------------------------------------------
+
+            const pedidosPendentes = db.prepare(`
+                SELECT COUNT(*) AS total
+                FROM orders
+                WHERE status = 'pending'
+            `).get().total;
+
+
+            // ------------------------------------------
+            // PEDIDOS CONCLUÍDOS
+            // ------------------------------------------
+
+            const pedidosConcluidos = db.prepare(`
+                SELECT COUNT(*) AS total
+                FROM orders
+                WHERE status = 'completed'
+            `).get().total;
+
+
+            // ------------------------------------------
+            // PRODUTOS VENDIDOS
+            // SOMENTE PEDIDOS CONCLUÍDOS
+            // ------------------------------------------
+
+            const produtosVendidos = db.prepare(`
+                SELECT COALESCE(SUM(oi.quantity), 0) AS total
+                FROM order_items oi
+
+                INNER JOIN orders o
+                    ON o.id = oi.order_id
+
+                WHERE o.status = 'completed'
+            `).get().total;
+
+
+            // ------------------------------------------
+            // FATURAMENTO
+            // SOMENTE PEDIDOS CONCLUÍDOS
+            // ------------------------------------------
+
+            const faturamento = db.prepare(`
+                SELECT COALESCE(SUM(total), 0) AS total
+                FROM orders
+                WHERE status = 'completed'
+            `).get().total;
+
+
+            // ------------------------------------------
+            // VALOR DOS PEDIDOS ATIVOS
+            // ------------------------------------------
+
+            const valorPendente = db.prepare(`
+                SELECT COALESCE(SUM(total), 0) AS total
+                FROM orders
+
+                WHERE status IN (
+                    'pending',
+                    'confirmed',
+                    'processing',
+                    'shipped'
+                )
+            `).get().total;
+
+
+            // ------------------------------------------
+            // RESPOSTA
+            // ------------------------------------------
+
+            return res.json({
+
+                success: true,
+
+                stats: {
+
+                    totalPedidos,
+
+                    pedidosPendentes,
+
+                    pedidosConcluidos,
+
+                    produtosVendidos,
+
+                    faturamento,
+
+                    valorPendente
+
+                }
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ Erro ao carregar estatísticas:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message: "Erro ao carregar estatísticas."
+
+            });
+
+        }
+
+    }
+);
+
+
+// ======================================================
 // VER PEDIDO — ADMIN
 // GET /api/orders/:id
 // ======================================================
@@ -456,6 +625,13 @@ router.get(
             }
 
 
+            const orderId = Number(id);
+
+
+            // ------------------------------------------
+            // BUSCAR PEDIDO
+            // ------------------------------------------
+
             const pedido = db.prepare(`
                 SELECT
                     orders.*,
@@ -467,7 +643,7 @@ router.get(
                     ON users.id = orders.user_id
 
                 WHERE orders.id = ?
-            `).get(Number(id));
+            `).get(orderId);
 
 
             if (!pedido) {
@@ -483,21 +659,34 @@ router.get(
             }
 
 
+            // ------------------------------------------
+            // BUSCAR ITENS
+            // ------------------------------------------
+
             const itens = db.prepare(`
                 SELECT *
                 FROM order_items
-                WHERE order_id = ?
-                ORDER BY id ASC
-            `).all(Number(id));
 
+                WHERE order_id = ?
+
+                ORDER BY id ASC
+            `).all(orderId);
+
+
+            // ------------------------------------------
+            // RESPOSTA
+            // ------------------------------------------
 
             return res.json({
 
                 success: true,
 
                 order: {
+
                     ...pedido,
+
                     items: itens
+
                 }
 
             });
@@ -539,8 +728,13 @@ router.put(
         try {
 
             const { id } = req.params;
+
             const { status } = req.body;
 
+
+            // ------------------------------------------
+            // VALIDAR ID
+            // ------------------------------------------
 
             if (!validarId(id)) {
 
@@ -555,13 +749,24 @@ router.put(
             }
 
 
+            // ------------------------------------------
+            // ESTADOS PERMITIDOS
+            // ------------------------------------------
+
             const estadosPermitidos = [
+
                 "pending",
+
                 "confirmed",
+
                 "processing",
+
                 "shipped",
+
                 "completed",
+
                 "cancelled"
+
             ];
 
 
@@ -578,21 +783,195 @@ router.put(
             }
 
 
-            const resultado = db.prepare(`
-                UPDATE orders
-
-                SET
-                    status = ?,
-                    updated_at = CURRENT_TIMESTAMP
-
-                WHERE id = ?
-            `).run(
-                status,
-                Number(id)
-            );
+            const orderId = Number(id);
 
 
-            if (resultado.changes === 0) {
+            // ------------------------------------------
+            // TRANSAÇÃO
+            // ------------------------------------------
+
+            const alterarEstado = db.transaction(() => {
+
+
+                // --------------------------------------
+                // PEDIDO ATUAL
+                // --------------------------------------
+
+                const pedidoAtual = db.prepare(`
+                    SELECT *
+                    FROM orders
+                    WHERE id = ?
+                `).get(orderId);
+
+
+                if (!pedidoAtual) {
+
+                    return {
+                        encontrado: false
+                    };
+
+                }
+
+
+                const estadoAnterior =
+                    pedidoAtual.status;
+
+
+                // --------------------------------------
+                // MESMO ESTADO
+                // --------------------------------------
+
+                if (estadoAnterior === status) {
+
+                    return {
+
+                        encontrado: true,
+
+                        alterado: false
+
+                    };
+
+                }
+
+
+                // --------------------------------------
+                // ITENS DO PEDIDO
+                // --------------------------------------
+
+                const itens = db.prepare(`
+                    SELECT
+                        product_id,
+                        quantity
+                    FROM order_items
+
+                    WHERE order_id = ?
+                `).all(orderId);
+
+
+                // --------------------------------------
+                // ATIVO → CANCELADO
+                //
+                // DEVOLVER STOCK
+                // --------------------------------------
+
+                if (
+                    estadoAnterior !== "cancelled" &&
+                    status === "cancelled"
+                ) {
+
+                    const devolverStock = db.prepare(`
+                        UPDATE products
+
+                        SET
+                            stock = stock + ?,
+                            updated_at = CURRENT_TIMESTAMP
+
+                        WHERE id = ?
+                    `);
+
+
+                    for (const item of itens) {
+
+                        if (item.product_id === null) {
+                            continue;
+                        }
+
+
+                        devolverStock.run(
+                            item.quantity,
+                            item.product_id
+                        );
+
+                    }
+
+                }
+
+
+                // --------------------------------------
+                // CANCELADO → ATIVO
+                //
+                // RESERVAR STOCK NOVAMENTE
+                // --------------------------------------
+
+                if (
+                    estadoAnterior === "cancelled" &&
+                    status !== "cancelled"
+                ) {
+
+                    const reservarStock = db.prepare(`
+                        UPDATE products
+
+                        SET
+                            stock = stock - ?,
+                            updated_at = CURRENT_TIMESTAMP
+
+                        WHERE id = ?
+                          AND stock >= ?
+                    `);
+
+
+                    for (const item of itens) {
+
+                        if (item.product_id === null) {
+                            continue;
+                        }
+
+
+                        const resultadoStock =
+                            reservarStock.run(
+                                item.quantity,
+                                item.product_id,
+                                item.quantity
+                            );
+
+
+                        if (resultadoStock.changes === 0) {
+
+                            throw new Error(
+                                `Stock insuficiente para reativar o produto ${item.product_id}.`
+                            );
+
+                        }
+
+                    }
+
+                }
+
+
+                // --------------------------------------
+                // ATUALIZAR PEDIDO
+                // --------------------------------------
+
+                db.prepare(`
+                    UPDATE orders
+
+                    SET
+                        status = ?,
+                        updated_at = CURRENT_TIMESTAMP
+
+                    WHERE id = ?
+                `).run(
+                    status,
+                    orderId
+                );
+
+
+                return {
+
+                    encontrado: true,
+
+                    alterado: true
+
+                };
+
+            })();
+
+
+            // ------------------------------------------
+            // PEDIDO NÃO ENCONTRADO
+            // ------------------------------------------
+
+            if (!alterarEstado.encontrado) {
 
                 return res.status(404).json({
 
@@ -605,18 +984,30 @@ router.put(
             }
 
 
+            // ------------------------------------------
+            // BUSCAR PEDIDO ATUALIZADO
+            // ------------------------------------------
+
             const pedido = db.prepare(`
                 SELECT *
                 FROM orders
                 WHERE id = ?
-            `).get(Number(id));
+            `).get(orderId);
 
+
+            // ------------------------------------------
+            // RESPOSTA
+            // ------------------------------------------
 
             return res.json({
 
                 success: true,
 
-                message: "Estado do pedido atualizado.",
+                message: alterarEstado.alterado
+
+                    ? "Estado do pedido atualizado."
+
+                    : "O pedido já estava nesse estado.",
 
                 order: pedido
 
@@ -631,11 +1022,13 @@ router.put(
             );
 
 
-            return res.status(500).json({
+            return res.status(400).json({
 
                 success: false,
 
-                message: "Erro ao atualizar pedido."
+                message:
+                    error.message ||
+                    "Erro ao atualizar pedido."
 
             });
 
@@ -661,6 +1054,10 @@ router.delete(
             const { id } = req.params;
 
 
+            // ------------------------------------------
+            // VALIDAR ID
+            // ------------------------------------------
+
             if (!validarId(id)) {
 
                 return res.status(400).json({
@@ -674,13 +1071,106 @@ router.delete(
             }
 
 
-            const resultado = db.prepare(`
-                DELETE FROM orders
-                WHERE id = ?
-            `).run(Number(id));
+            const orderId = Number(id);
 
 
-            if (resultado.changes === 0) {
+            // ------------------------------------------
+            // TRANSAÇÃO
+            // ------------------------------------------
+
+            const apagarPedido = db.transaction(() => {
+
+
+                // --------------------------------------
+                // BUSCAR PEDIDO
+                // --------------------------------------
+
+                const pedido = db.prepare(`
+                    SELECT
+                        id,
+                        status
+
+                    FROM orders
+
+                    WHERE id = ?
+                `).get(orderId);
+
+
+                if (!pedido) {
+
+                    return false;
+
+                }
+
+
+                // --------------------------------------
+                // SE O PEDIDO NÃO ESTÁ CANCELADO,
+                // DEVOLVER STOCK
+                // --------------------------------------
+
+                if (pedido.status !== "cancelled") {
+
+                    const itens = db.prepare(`
+                        SELECT
+                            product_id,
+                            quantity
+
+                        FROM order_items
+
+                        WHERE order_id = ?
+                    `).all(orderId);
+
+
+                    const devolverStock = db.prepare(`
+                        UPDATE products
+
+                        SET
+                            stock = stock + ?,
+                            updated_at = CURRENT_TIMESTAMP
+
+                        WHERE id = ?
+                    `);
+
+
+                    for (const item of itens) {
+
+                        if (item.product_id === null) {
+                            continue;
+                        }
+
+
+                        devolverStock.run(
+                            item.quantity,
+                            item.product_id
+                        );
+
+                    }
+
+                }
+
+
+                // --------------------------------------
+                // APAGAR PEDIDO
+                // order_items será apagado
+                // automaticamente por CASCADE
+                // --------------------------------------
+
+                db.prepare(`
+                    DELETE FROM orders
+                    WHERE id = ?
+                `).run(orderId);
+
+
+                return true;
+
+            })();
+
+
+            // ------------------------------------------
+            // PEDIDO NÃO ENCONTRADO
+            // ------------------------------------------
+
+            if (!apagarPedido) {
 
                 return res.status(404).json({
 
@@ -692,6 +1182,10 @@ router.delete(
 
             }
 
+
+            // ------------------------------------------
+            // RESPOSTA
+            // ------------------------------------------
 
             return res.json({
 
@@ -723,5 +1217,9 @@ router.delete(
     }
 );
 
+
+// ======================================================
+// EXPORTAR
+// ======================================================
 
 module.exports = router;

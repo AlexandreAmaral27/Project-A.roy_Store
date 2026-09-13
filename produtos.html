@@ -1518,239 +1518,161 @@ function iniciarMenu() {
    BACKEND + WHATSAPP
    ========================================================= */
 
+
 async function enviarPedidoWhatsApp() {
 
-    const nomeInput =
-        document.getElementById("clienteNome");
+    const nomeInput = document.getElementById("clienteNome");
+    const telefoneInput = document.getElementById("clienteTelefone");
+    const localInput = document.getElementById("clienteLocal");
+    const obsInput = document.getElementById("clienteObs");
 
-    const telefoneInput =
-        document.getElementById("clienteTelefone");
-
-    const localInput =
-        document.getElementById("clienteLocal");
-
-    const obsInput =
-        document.getElementById("clienteObs");
-
-
-    if (
-        !nomeInput ||
-        !telefoneInput ||
-        !localInput
-    ) {
+    if (!nomeInput || !telefoneInput || !localInput) {
+        alert("Formulário de checkout não encontrado.");
         return;
     }
 
+    const nome = nomeInput.value.trim();
+    const telefone = telefoneInput.value.trim();
+    const local = localInput.value.trim();
+    const obs = obsInput ? obsInput.value.trim() : "";
 
-    const nome =
-        nomeInput.value.trim();
-
-    const telefone =
-        telefoneInput.value.trim();
-
-    const local =
-        localInput.value.trim();
-
-    const obs =
-        obsInput
-            ? obsInput.value.trim()
-            : "";
-
-
-    // ----------------------------------------------
+    // ==========================================
     // VALIDAÇÃO
-    // ----------------------------------------------
+    // ==========================================
 
     if (!nome || !telefone || !local) {
-
-        alert(
-            "Preencha o nome, telefone e localização."
-        );
-
+        alert("Preencha o nome, telefone e localização.");
         return;
     }
-
 
     if (!Array.isArray(cart) || cart.length === 0) {
-
-        alert(
-            "O carrinho está vazio."
-        );
-
+        alert("O carrinho está vazio.");
         return;
     }
 
+    // ==========================================
+    // VALIDAR IDs DOS PRODUTOS
+    // ==========================================
 
-    // ----------------------------------------------
-    // VERIFICAR SE O CARRINHO TEM IDs
-    // ----------------------------------------------
-
-    const itemSemId = cart.find(
-        item =>
-            !item.product_id ||
-            !Number.isInteger(
-                Number(item.product_id)
-            )
+    const itemSemId = cart.find(item =>
+        !item.product_id ||
+        !Number.isInteger(Number(item.product_id))
     );
 
-
     if (itemSemId) {
-
         alert(
             "Este carrinho contém produtos antigos. " +
             "Limpe o carrinho e adicione os produtos novamente."
         );
-
         return;
     }
 
-
-    // ----------------------------------------------
-    // PREPARAR ITENS PARA O BACKEND
-    // ----------------------------------------------
+    // ==========================================
+    // PREPARAR ITENS
+    // ==========================================
 
     const items = cart.map(item => ({
-
-        product_id:
-            Number(item.product_id),
-
-        quantity:
-            Number(item.quantity)
-
+        product_id: Number(item.product_id),
+        quantity: Number(item.quantity)
     }));
 
+    // ==========================================
+    // BOTÃO / PROTEÇÃO CONTRA DUPLO CLIQUE
+    // ==========================================
 
-    // ----------------------------------------------
-    // ABRIR JANELA DO WHATSAPP
-    // ----------------------------------------------
-    // Abrimos imediatamente para evitar bloqueio
-    // do navegador depois do fetch.
+    const botao = document.querySelector(".whatsapp-checkout");
 
-    const whatsappWindow =
-        window.open(
-            "about:blank",
-            "_blank"
-        );
-
+    if (botao) {
+        botao.disabled = true;
+        botao.innerText = "⏳ A criar pedido...";
+    }
 
     try {
 
-        // ------------------------------------------
-        // ENVIAR PEDIDO PARA O BACKEND
-        // ------------------------------------------
+        // ==========================================
+        // ENVIAR PARA O BACKEND
+        // ==========================================
 
-        const resposta = await fetch(
-            "/api/orders",
-            {
-                method: "POST",
+        const resposta = await fetch("/api/orders", {
+            method: "POST",
 
-                credentials: "include",
+            credentials: "include",
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-                body: JSON.stringify({
+            body: JSON.stringify({
+                customer_name: nome,
+                customer_phone: telefone,
+                delivery_address: local,
+                observation: obs,
+                payment_method: "whatsapp",
+                items: items
+            })
+        });
 
-                    customer_name:
-                        nome,
+        const dados = await resposta.json();
 
-                    customer_phone:
-                        telefone,
+        console.log("📦 RESPOSTA DO PEDIDO:", dados);
 
-                    delivery_address:
-                        local,
+        // ==========================================
+        // ERRO
+        // ==========================================
 
-                    observation:
-                        obs,
-
-                    payment_method:
-                        "whatsapp",
-
-                    items:
-                        items
-
-                })
-            }
-        );
-
-
-        const dados =
-            await resposta.json();
-
-
-        console.log(
-            "📦 PEDIDO CRIADO:",
-            dados
-        );
-
-
-        // ------------------------------------------
-        // ERRO DO BACKEND
-        // ------------------------------------------
-
-        if (
-            !resposta.ok ||
-            !dados.success
-        ) {
-
-            if (
-                whatsappWindow &&
-                !whatsappWindow.closed
-            ) {
-                whatsappWindow.close();
-            }
-
+        if (!resposta.ok || !dados.success) {
 
             alert(
                 dados.message ||
                 "Não foi possível criar o pedido."
             );
 
+            if (botao) {
+                botao.disabled = false;
+                botao.innerText =
+                    "📱 Enviar pedido pelo WhatsApp";
+            }
+
             return;
         }
 
+        // ==========================================
+        // PEDIDO CRIADO
+        // ==========================================
 
-        const pedido =
-            dados.order;
+        const pedido = dados.order;
 
+        console.log("✅ PEDIDO CRIADO:", pedido);
 
-        // ------------------------------------------
-        // CRIAR MENSAGEM DO WHATSAPP
-        // ------------------------------------------
+        // ==========================================
+        // CRIAR MENSAGEM
+        // ==========================================
 
         let mensagem =
-            "🛍️ *NOVO PEDIDO — A.ROY_STORE*%0A%0A";
-
+            "🛍️ *NOVO PEDIDO — A.ROY_STORE*\n\n";
 
         mensagem +=
             "🔢 *Pedido:* #" +
             pedido.id +
-            "%0A";
-
+            "\n";
 
         mensagem +=
             "👤 *Cliente:* " +
-            encodeURIComponent(nome) +
-            "%0A";
-
+            nome +
+            "\n";
 
         mensagem +=
             "📱 *Telefone:* " +
-            encodeURIComponent(telefone) +
-            "%0A";
-
+            telefone +
+            "\n";
 
         mensagem +=
             "📍 *Localização:* " +
-            encodeURIComponent(local) +
-            "%0A%0A";
-
+            local +
+            "\n\n";
 
         mensagem +=
-            "🛒 *PRODUTOS:*%0A";
-
+            "🛒 *PRODUTOS:*\n";
 
         pedido.items.forEach(item => {
 
@@ -1758,146 +1680,106 @@ async function enviarPedidoWhatsApp() {
                 "• " +
                 item.quantity +
                 "x " +
-                encodeURIComponent(
-                    item.product_name
-                ) +
+                item.product_name +
                 " — " +
-                Number(
-                    item.subtotal
-                ).toLocaleString("pt-AO") +
-                " Kz%0A";
-
+                Number(item.subtotal)
+                    .toLocaleString("pt-AO") +
+                " Kz\n";
         });
 
-
         mensagem +=
-            "%0A💰 *TOTAL: " +
-            Number(
-                pedido.total
-            ).toLocaleString("pt-AO") +
-            " Kz*%0A";
-
+            "\n💰 *TOTAL: " +
+            Number(pedido.total)
+                .toLocaleString("pt-AO") +
+            " Kz*";
 
         if (obs) {
 
             mensagem +=
-                "%0A📝 *Observação:* " +
-                encodeURIComponent(obs);
-
+                "\n\n📝 *Observação:* " +
+                obs;
         }
 
+        // ==========================================
+        // WHATSAPP
+        // ==========================================
 
-        // ------------------------------------------
-        // NÚMERO DO WHATSAPP
-        // ------------------------------------------
-
-        const numero =
-            "244929764090";
-
+        const numero = "244929764090";
 
         const url =
-            `https://wa.me/${numero}?text=${mensagem}`;
+            "https://wa.me/" +
+            numero +
+            "?text=" +
+            encodeURIComponent(mensagem);
 
-
-        // ------------------------------------------
-        // ENVIAR PARA WHATSAPP
-        // ------------------------------------------
-
-        if (
-            whatsappWindow &&
-            !whatsappWindow.closed
-        ) {
-
-            whatsappWindow.location.href =
-                url;
-
-        } else {
-
-            window.location.href =
-                url;
-
-        }
-
-
-        // ------------------------------------------
+        // ==========================================
         // HISTÓRICO LOCAL
-        // ------------------------------------------
+        // ==========================================
 
         const historico =
             JSON.parse(
-                localStorage.getItem(
-                    "historicoCompras"
-                )
+                localStorage.getItem("historicoCompras")
             ) || [];
-
 
         historico.push({
 
-            pedidoId:
-                pedido.id,
+            pedidoId: pedido.id,
 
             data:
-                new Date().toLocaleString(),
+                new Date().toLocaleString("pt-AO"),
 
-            cliente:
-                nome,
+            cliente: nome,
 
-            telefone:
-                telefone,
+            telefone: telefone,
 
-            local:
-                local,
+            local: local,
 
-            itens:
-                [...cart],
+            itens: [...cart],
 
-            total:
-                Number(pedido.total)
-
+            total: Number(pedido.total)
         });
-
 
         localStorage.setItem(
             "historicoCompras",
             JSON.stringify(historico)
         );
 
-
-        // ------------------------------------------
+        // ==========================================
         // LIMPAR CARRINHO
-        // ------------------------------------------
+        // ==========================================
 
         cart = [];
 
         updateCart();
 
-        localStorage.removeItem(
-            "cart"
-        );
-
+        localStorage.removeItem("cart");
 
         fecharCheckout();
 
-
         const cartContainer =
-            document.getElementById(
-                "cart-container"
-            );
-
+            document.getElementById("cart-container");
 
         if (cartContainer) {
-
-            cartContainer.classList.remove(
-                "show"
-            );
-
+            cartContainer.classList.remove("show");
         }
 
+        // ==========================================
+        // MENSAGEM DE SUCESSO
+        // ==========================================
 
         showToast(
-            `Pedido #${pedido.id} criado com sucesso!`
+            "Pedido #" +
+            pedido.id +
+            " criado com sucesso!"
         );
 
+        // ==========================================
+        // ABRIR WHATSAPP
+        // ==========================================
+
+        setTimeout(() => {
+            window.open(url, "_blank");
+        }, 300);
 
     } catch (error) {
 
@@ -1906,23 +1788,21 @@ async function enviarPedidoWhatsApp() {
             error
         );
 
-
-        if (
-            whatsappWindow &&
-            !whatsappWindow.closed
-        ) {
-            whatsappWindow.close();
-        }
-
-
         alert(
-            "Não foi possível enviar o pedido. " +
+            "Não foi possível criar o pedido. " +
             "Verifique se o servidor está funcionando."
         );
 
-    }
+        if (botao) {
 
+            botao.disabled = false;
+
+            botao.innerText =
+                "📱 Enviar pedido pelo WhatsApp";
+        }
+    }
 }
+
 
 /* =========================================================
    MODAL DO PRODUTO

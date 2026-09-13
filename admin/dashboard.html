@@ -121,49 +121,66 @@
            ESTATÍSTICAS
         ================================================== */
 
-        .stats {
+       .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
 
-            display: grid;
+.stat {
+    background: white;
+    padding: 22px;
+    border-radius: 16px;
+    box-shadow:
+        0 5px 20px
+        rgba(0,0,0,.06);
 
-            grid-template-columns:
-                repeat(3, 1fr);
+    border: 1px solid #e2e8f0;
 
-            gap: 20px;
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
 
-            margin-bottom: 30px;
+.stat:hover {
+    transform: translateY(-3px);
 
-        }
+    box-shadow:
+        0 10px 25px
+        rgba(0,0,0,.10);
+}
 
-        .stat {
+.stat span {
+    display: block;
 
-            background: white;
+    color: #64748b;
 
-            padding: 25px;
+    font-size: 14px;
 
-            border-radius: 15px;
+    margin-bottom: 10px;
+}
 
-            box-shadow:
-                0 5px 20px
-                rgba(0,0,0,.06);
+.stat strong {
+    display: block;
 
-        }
+    font-size: 28px;
 
-        .stat span {
+    color: #0f172a;
+}
 
-            display: block;
+.stat-money {
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f0fdf4
+        );
+}
 
-            color: #64748b;
-
-            margin-bottom: 8px;
-
-        }
-
-        .stat strong {
-
-            font-size: 30px;
-
-        }
-
+.stat-money strong {
+    color: #16a34a;
+}
 
         /* ==================================================
            CARD
@@ -404,250 +421,39 @@
         /* ==================================================
            RESPONSIVO
         ================================================== */
+@media (max-width: 1000px) {
 
-        @media (max-width: 700px) {
+    .stats {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
 
-            .container {
-
-                padding: 15px;
-
-            }
-
-            header {
-
-                align-items: flex-start;
-
-                gap: 15px;
-
-            }
-
-            header h1 {
-
-                font-size: 22px;
-
-            }
-
-            .stats {
-
-                grid-template-columns: 1fr;
-
-            }
-
-            .form-grid {
-
-                grid-template-columns: 1fr;
-
-            }
-
-            .form-group.full {
-
-                grid-column: auto;
-
-            }
-
-        }
-
-    
-/* ==================================================
-   PEDIDOS
-================================================== */
-
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 20px;
 }
 
-.section-description {
-    margin-top: 5px;
-    opacity: 0.65;
-    font-size: 14px;
-}
-
-.order-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.status-pending {
-    background: rgba(245, 158, 11, 0.15);
-    color: #d97706;
-}
-
-.status-confirmed {
-    background: rgba(37, 99, 235, 0.15);
-    color: #2563eb;
-}
-
-.status-processing {
-    background: rgba(124, 58, 237, 0.15);
-    color: #7c3aed;
-}
-
-.status-shipped {
-    background: rgba(5, 150, 105, 0.15);
-    color: #059669;
-}
-
-.status-completed {
-    background: rgba(22, 163, 74, 0.15);
-    color: #16a34a;
-}
-
-.status-cancelled {
-    background: rgba(220, 38, 38, 0.15);
-    color: #dc2626;
-}
-
-.order-modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(15, 23, 42, 0.72);
-    z-index: 9999;
-}
-
-.order-modal.show {
-    display: flex;
-}
-
-.order-modal-box {
-    width: 100%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow-y: auto;
-    background: #ffffff;
-    color: #0f172a;
-    border-radius: 18px;
-    padding: 25px;
-    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
-}
-
-.order-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-    margin-bottom: 25px;
-    padding-bottom: 18px;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.order-modal-header h2 {
-    margin: 0;
-}
-
-.order-modal-header p {
-    margin-top: 5px;
-    color: #64748b;
-    font-size: 13px;
-}
-
-.order-modal-close {
-    width: 38px;
-    height: 38px;
-    border: none;
-    border-radius: 50%;
-    background: #f1f5f9;
-    color: #0f172a;
-    font-size: 25px;
-    cursor: pointer;
-}
-
-.order-modal-close:hover {
-    background: #e2e8f0;
-}
-
-.order-info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 25px;
-}
-
-.order-info-item {
-    padding: 15px;
-    background: #f8fafc;
-    border-radius: 10px;
-}
-
-.order-info-item small {
-    display: block;
-    margin-bottom: 5px;
-    color: #64748b;
-    font-size: 11px;
-}
-
-.order-info-item strong {
-    font-size: 14px;
-}
-
-.order-items {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.order-item {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 13px;
-    border-radius: 10px;
-    background: #f8fafc;
-}
-
-.order-item-name {
-    font-weight: 600;
-}
-
-.order-item-details {
-    margin-top: 4px;
-    color: #64748b;
-    font-size: 12px;
-}
-
-.order-item-price {
-    white-space: nowrap;
-    font-weight: 700;
-}
-
-.order-total-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding-top: 18px;
-    border-top: 1px solid #e2e8f0;
-    font-size: 18px;
-}
-
-.order-total-box strong {
-    font-size: 22px;
-}
-
-.order-status-select {
-    min-width: 145px;
-    padding: 7px 9px;
-    border-radius: 7px;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    color: #0f172a;
-    cursor: pointer;
-}
 
 @media (max-width: 700px) {
+
+    .container {
+        padding: 15px;
+    }
+
+    header {
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    header h1 {
+        font-size: 22px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full {
+        grid-column: auto;
+    }
+
     .section-header {
         align-items: flex-start;
         flex-direction: column;
@@ -662,6 +468,761 @@
     }
 }
 
+
+
+/* =====================================================
+   CARDS DE PEDIDOS
+===================================================== */
+
+.orders-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+    margin-top: 25px;
+}
+
+/* CARD */
+.order-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+    transition: 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.10);
+}
+
+/* LINHA AZUL SUPERIOR */
+.order-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #168cff;
+}
+
+/* CABEÇALHO */
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.order-title {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.order-date {
+    margin-top: 5px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+/* ESTADO */
+.order-status {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-confirmed {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.status-processing {
+    background: #eef2ff;
+    color: #4338ca;
+}
+
+.status-shipped {
+    background: #ecfeff;
+    color: #0e7490;
+}
+
+.status-completed {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.status-cancelled {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* INFORMAÇÕES */
+.order-info {
+    display: grid;
+    gap: 11px;
+    margin-bottom: 20px;
+}
+
+.order-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #374151;
+    font-size: 14px;
+}
+
+.order-info-row strong {
+    color: #111827;
+}
+
+/* PRODUTOS */
+.order-products {
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 14px;
+    padding: 15px;
+    margin-bottom: 18px;
+}
+
+.order-products-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 12px;
+}
+
+.order-product {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 11px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.order-product:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.product-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.product-quantity {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.product-price {
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+}
+
+/* TOTAL */
+.order-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.order-total span {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.order-total strong {
+    font-size: 21px;
+    color: #168cff;
+}
+
+/* AÇÕES */
+.order-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.order-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+.order-btn:hover {
+    transform: translateY(-1px);
+}
+
+.order-btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.order-btn-delete:hover {
+    background: #fecaca;
+}
+
+.order-btn-view {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+/* RESPONSIVO */
+@media (max-width: 600px) {
+
+    .orders-list {
+        grid-template-columns: 1fr;
+    }
+
+    .order-card {
+        padding: 17px;
+        border-radius: 15px;
+    }
+
+    .order-header {
+        flex-direction: column;
+    }
+
+    .order-status {
+        align-self: flex-start;
+    }
+
+    .order-title {
+        font-size: 20px;
+    }
+
+    .order-product {
+        align-items: flex-start;
+    }
+
+    .order-total strong {
+        font-size: 18px;
+    }
+}
+
+/* =====================================================
+   MODAL DE DETALHES DO PEDIDO
+===================================================== */
+
+.order-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(15, 23, 42, 0.65);
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 9999;
+
+    backdrop-filter: blur(5px);
+
+}
+
+.order-modal.show {
+
+    display: flex;
+
+}
+
+
+/* CAIXA */
+
+.order-modal-box {
+
+    width: 100%;
+
+    max-width: 650px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 28px;
+
+    box-shadow:
+        0 25px 70px
+        rgba(0, 0, 0, 0.25);
+
+    animation:
+        modalEntrada 0.25s ease;
+
+}
+
+
+@keyframes modalEntrada {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(20px)
+            scale(.97);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
+/* CABEÇALHO */
+
+.order-modal-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 20px;
+
+    padding-bottom: 20px;
+
+    margin-bottom: 22px;
+
+    border-bottom:
+        1px solid #e2e8f0;
+
+}
+
+
+.order-modal-header h2 {
+
+    font-size: 26px;
+
+    color: #0f172a;
+
+}
+
+
+.order-modal-header p {
+
+    margin-top: 5px;
+
+    font-size: 13px;
+
+    color: #64748b;
+
+}
+
+
+/* BOTÃO FECHAR */
+
+.order-modal-close {
+
+    width: 38px;
+
+    height: 38px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #f1f5f9;
+
+    color: #475569;
+
+    font-size: 25px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+
+}
+
+
+.order-modal-close:hover {
+
+    background: #fee2e2;
+
+    color: #dc2626;
+
+}
+
+
+/* =====================================================
+   INFORMAÇÕES DO PEDIDO
+===================================================== */
+
+.order-info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 12px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.order-info-item {
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 12px;
+
+    padding: 14px;
+
+}
+
+
+.order-info-item small {
+
+    display: block;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    margin-bottom: 6px;
+
+}
+
+
+.order-info-item strong {
+
+    display: block;
+
+    color: #0f172a;
+
+    font-size: 14px;
+
+    word-break: break-word;
+
+}
+
+
+/* =====================================================
+   ESTADOS
+===================================================== */
+
+.order-info-item .order-status {
+
+    display: inline-block;
+
+}
+
+
+/* =====================================================
+   PRODUTOS
+===================================================== */
+
+.order-items {
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    padding: 5px 15px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.order-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 15px 0;
+
+    border-bottom:
+        1px solid #e2e8f0;
+
+}
+
+
+.order-item:last-child {
+
+    border-bottom: none;
+
+}
+
+
+.order-item-name {
+
+    font-weight: 700;
+
+    color: #0f172a;
+
+    font-size: 15px;
+
+}
+
+
+.order-item-details {
+
+    margin-top: 5px;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+}
+
+
+.order-item-price {
+
+    font-weight: 800;
+
+    color: #0f172a;
+
+    white-space: nowrap;
+
+}
+
+
+/* =====================================================
+   TOTAL
+===================================================== */
+
+.order-total-box {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #f8fafc
+        );
+
+    border: 1px solid #bfdbfe;
+
+    border-radius: 14px;
+
+    padding: 18px;
+
+    margin-top: 20px;
+
+}
+
+
+.order-total-box span {
+
+    color: #475569;
+
+    font-weight: 600;
+
+}
+
+
+.order-total-box strong {
+
+    color: #2563eb;
+
+    font-size: 23px;
+
+}
+
+
+/* =====================================================
+   TÍTULO DOS PRODUTOS
+===================================================== */
+
+#orderDetails h3 {
+
+    font-size: 17px;
+
+    color: #0f172a;
+
+    margin-bottom: 12px;
+
+}
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .order-modal {
+
+        padding: 10px;
+
+        align-items: flex-end;
+
+    }
+
+    .order-modal-box {
+
+        max-height: 92vh;
+
+        padding: 20px;
+
+        border-radius:
+            20px 20px 0 0;
+
+    }
+
+    .order-info-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .order-modal-header h2 {
+
+        font-size: 22px;
+
+    }
+
+    .order-item {
+
+        align-items: flex-start;
+
+    }
+
+    .order-item-price {
+
+        font-size: 14px;
+
+    }
+
+    .order-total-box strong {
+
+        font-size: 19px;
+
+    }
+
+}
+
+/* =====================================================
+   PESQUISA E FILTROS DE PEDIDOS
+===================================================== */
+
+.orders-toolbar {
+    display: flex;
+    gap: 12px;
+    margin: 20px 0 10px;
+}
+
+.orders-search {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 0 13px;
+}
+
+.orders-search input {
+    border: none;
+    background: transparent;
+    padding: 12px 0;
+}
+
+.orders-search input:focus {
+    border: none;
+}
+
+.orders-filter {
+    width: 220px;
+    background: white;
+}
+
+.orders-counter {
+    color: #64748b;
+    font-size: 13px;
+    margin: 12px 0 15px;
+}
+
+
+/* ESTADOS NA TABELA */
+
+.order-status-select {
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    background: white;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .orders-toolbar {
+        flex-direction: column;
+    }
+
+    .orders-filter {
+        width: 100%;
+    }
+
+    .orders-search {
+        width: 100%;
+    }
+
+}
     </style>
 
 </head>
@@ -709,48 +1270,54 @@
          ESTATÍSTICAS
     ================================================== -->
 
-    <div class="stats">
+   <div class="stats">
 
-        <div class="stat">
-
-            <span>
-                Total de produtos
-            </span>
-
-            <strong id="totalProdutos">
-                0
-            </strong>
-
-        </div>
-
-
-        <div class="stat">
-
-            <span>
-                Produtos em estoque
-            </span>
-
-            <strong id="produtosEstoque">
-                0
-            </strong>
-
-        </div>
-
-
-        <div class="stat">
-
-            <span>
-                Sem estoque
-            </span>
-
-            <strong id="produtosSemEstoque">
-                0
-            </strong>
-
-        </div>
-
+    <!-- PRODUTOS -->
+    <div class="stat">
+        <span>📦 Total de produtos</span>
+        <strong id="totalProdutos">0</strong>
     </div>
 
+    <div class="stat">
+        <span>🟢 Em estoque</span>
+        <strong id="produtosEstoque">0</strong>
+    </div>
+
+    <div class="stat">
+        <span>🔴 Sem estoque</span>
+        <strong id="produtosSemEstoque">0</strong>
+    </div>
+
+
+    <!-- PEDIDOS -->
+    <div class="stat">
+        <span>🛒 Total de pedidos</span>
+        <strong id="totalPedidos">0</strong>
+    </div>
+
+    <div class="stat">
+        <span>⏳ Pedidos pendentes</span>
+        <strong id="pedidosPendentes">0</strong>
+    </div>
+
+    <div class="stat">
+        <span>✅ Pedidos concluídos</span>
+        <strong id="pedidosConcluidos">0</strong>
+    </div>
+
+
+    <!-- VENDAS -->
+    <div class="stat">
+        <span>📱 Produtos vendidos</span>
+        <strong id="produtosVendidos">0</strong>
+    </div>
+
+    <div class="stat stat-money">
+        <span>💰 Faturamento</span>
+        <strong id="faturamento">0 Kz</strong>
+    </div>
+
+</div>
 
     <!-- ==================================================
          ADICIONAR / EDITAR PRODUTO
@@ -1059,63 +1626,129 @@
     <!-- ==================================================
          PEDIDOS
     ================================================== -->
+<div class="card">
 
-    <div class="card">
+    <div class="section-header">
 
-        <div class="section-header">
+        <div>
+            <h2>🛍️ Pedidos</h2>
 
-            <div>
-                <h2>🛍️ Pedidos</h2>
-
-                <p class="section-description">
-                    Gerencie os pedidos realizados na loja.
-                </p>
-            </div>
-
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="carregarPedidos()"
-            >
-                🔄 Atualizar
-            </button>
-
+            <p class="section-description">
+                Gerencie os pedidos realizados na loja.
+            </p>
         </div>
 
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Pedido</th>
-                        <th>Cliente</th>
-                        <th>Telefone</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Data</th>
-                        <th>Ações</th>
-                    </tr>
-
-                </thead>
-
-                <tbody id="ordersTable">
-
-                    <tr>
-                        <td colspan="7">
-                            Carregando pedidos...
-                        </td>
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick="carregarPedidos()"
+        >
+            🔄 Atualizar
+        </button>
 
     </div>
+
+
+    <!-- PESQUISA E FILTROS -->
+
+    <div class="orders-toolbar">
+
+        <div class="orders-search">
+
+            <span>🔎</span>
+
+            <input
+                type="search"
+                id="pesquisaPedidos"
+                placeholder="Pesquisar por cliente, telefone ou nº do pedido..."
+                oninput="filtrarPedidos()"
+            >
+
+        </div>
+
+
+        <select
+            id="filtroEstado"
+            onchange="filtrarPedidos()"
+            class="orders-filter"
+        >
+
+            <option value="todos">
+                Todos os estados
+            </option>
+
+            <option value="pending">
+                Pendentes
+            </option>
+
+            <option value="confirmed">
+                Confirmados
+            </option>
+
+            <option value="processing">
+                Em processamento
+            </option>
+
+            <option value="shipped">
+                Enviados
+            </option>
+
+            <option value="completed">
+                Concluídos
+            </option>
+
+            <option value="cancelled">
+                Cancelados
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- CONTADOR -->
+
+    <div
+        id="contadorPedidos"
+        class="orders-counter"
+    >
+        0 pedidos
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Telefone</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="ordersTable">
+
+                <tr>
+                    <td colspan="7">
+                        Carregando pedidos...
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
 
     <!-- ==================================================
@@ -1202,8 +1835,8 @@ async function verificarAdmin() {
 
         carregarProdutos();
         carregarPedidos();
-
-    } catch (error) {
+        carregarEstatisticas();
+} catch (error) {
 
         console.error(
             "Erro ao verificar administrador:",
@@ -1937,7 +2570,7 @@ function limparFormulario() {
 // ======================================================
 // PEDIDOS
 // ======================================================
-
+let todosOsPedidos = [];
 const estadosPedido = {
     pending: {
         texto: "Pendente",
@@ -2011,22 +2644,7 @@ function formatarDataPedido(data) {
 
 async function carregarPedidos() {
 
-    const tabela =
-        document.getElementById("ordersTable");
-
-    if (!tabela) {
-        return;
-    }
-
     try {
-
-        tabela.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    Carregando pedidos...
-                </td>
-            </tr>
-        `;
 
         const resposta = await fetch(
             "/api/orders",
@@ -2037,10 +2655,7 @@ async function carregarPedidos() {
 
         const dados = await resposta.json();
 
-        console.log(
-            "📦 PEDIDOS RECEBIDOS:",
-            dados
-        );
+        console.log("🛒 Pedidos recebidos:", dados);
 
         if (
             !resposta.ok ||
@@ -2051,13 +2666,15 @@ async function carregarPedidos() {
                 dados.message ||
                 "Erro ao carregar pedidos."
             );
+
         }
 
-        mostrarPedidos(
+        todosOsPedidos =
             Array.isArray(dados.orders)
                 ? dados.orders
-                : []
-        );
+                : [];
+
+        filtrarPedidos();
 
     } catch (error) {
 
@@ -2066,16 +2683,97 @@ async function carregarPedidos() {
             error
         );
 
-        tabela.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    Erro ao carregar pedidos.
-                </td>
-            </tr>
-        `;
+        const tabela =
+            document.getElementById(
+                "ordersTable"
+            );
+
+        if (tabela) {
+
+            tabela.innerHTML = `
+                <tr>
+                    <td colspan="7">
+                        ❌ Erro ao carregar pedidos.
+                    </td>
+                </tr>
+            `;
+
+        }
+
     }
+
 }
 
+function filtrarPedidos() {
+
+    const pesquisa =
+        (
+            document.getElementById(
+                "pesquisaPedidos"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const estado =
+        document.getElementById(
+            "filtroEstado"
+        )?.value || "todos";
+
+
+    const pedidosFiltrados =
+        todosOsPedidos.filter(
+            pedido => {
+
+                const textoPesquisa = `
+                    ${pedido.id}
+                    ${pedido.customer_name || ""}
+                    ${pedido.customer_phone || ""}
+                `
+                .toLowerCase();
+
+
+                const correspondePesquisa =
+                    !pesquisa ||
+                    textoPesquisa.includes(
+                        pesquisa
+                    );
+
+
+                const correspondeEstado =
+                    estado === "todos" ||
+                    pedido.status === estado;
+
+
+                return (
+                    correspondePesquisa &&
+                    correspondeEstado
+                );
+
+            }
+        );
+
+
+    mostrarPedidos(pedidosFiltrados);
+
+
+    const contador =
+        document.getElementById(
+            "contadorPedidos"
+        );
+
+
+    if (contador) {
+
+        contador.textContent =
+            pedidosFiltrados.length === 1
+                ? "1 pedido"
+                : `${pedidosFiltrados.length} pedidos`;
+
+    }
+
+}
 
 function mostrarPedidos(pedidos) {
 
@@ -2718,6 +3416,154 @@ async function fazerLogout() {
 // ======================================================
 
 verificarAdmin();
+
+// ==========================================================
+// CARREGAR ESTATÍSTICAS REAIS
+// ==========================================================
+
+async function carregarEstatisticas() {
+
+    try {
+
+        // ==================================================
+        // ESTATÍSTICAS DOS PRODUTOS
+        // ==================================================
+
+        const respostaProdutos =
+            await fetch(
+                "/api/products",
+                {
+                    credentials: "include"
+                }
+            );
+
+        const dadosProdutos =
+            await respostaProdutos.json();
+
+        if (
+            dadosProdutos.success &&
+            Array.isArray(dadosProdutos.products)
+        ) {
+
+            const produtos =
+                dadosProdutos.products;
+
+            const total =
+                produtos.length;
+
+            const estoque =
+                produtos.filter(
+                    produto =>
+                        Number(produto.stock) > 0
+                ).length;
+
+            const semEstoque =
+                produtos.filter(
+                    produto =>
+                        Number(produto.stock) <= 0
+                ).length;
+
+
+            document.getElementById(
+                "totalProdutos"
+            ).textContent = total;
+
+
+            document.getElementById(
+                "produtosEstoque"
+            ).textContent = estoque;
+
+
+            document.getElementById(
+                "produtosSemEstoque"
+            ).textContent = semEstoque;
+        }
+
+
+        // ==================================================
+        // ESTATÍSTICAS DOS PEDIDOS
+        // ==================================================
+
+        const respostaPedidos =
+            await fetch(
+                "/api/orders/stats",
+                {
+                    credentials: "include"
+                }
+            );
+
+        const dadosPedidos =
+            await respostaPedidos.json();
+
+        if (!respostaPedidos.ok) {
+            throw new Error(
+                dadosPedidos.message ||
+                "Erro ao carregar estatísticas dos pedidos."
+            );
+        }
+
+        if (
+            dadosPedidos.success &&
+            dadosPedidos.stats
+        ) {
+
+            const stats =
+                dadosPedidos.stats;
+
+
+            document.getElementById(
+                "totalPedidos"
+            ).textContent =
+                Number(
+                    stats.totalPedidos
+                ).toLocaleString("pt-AO");
+
+
+            document.getElementById(
+                "pedidosPendentes"
+            ).textContent =
+                Number(
+                    stats.pedidosPendentes
+                ).toLocaleString("pt-AO");
+
+
+            document.getElementById(
+                "pedidosConcluidos"
+            ).textContent =
+                Number(
+                    stats.pedidosConcluidos
+                ).toLocaleString("pt-AO");
+
+
+            document.getElementById(
+                "produtosVendidos"
+            ).textContent =
+                Number(
+                    stats.produtosVendidos
+                ).toLocaleString("pt-AO");
+
+
+            document.getElementById(
+                "faturamento"
+            ).textContent =
+                Number(
+                    stats.faturamento
+                ).toLocaleString("pt-AO")
+                + " Kz";
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar estatísticas:",
+            error
+        );
+
+    }
+}
+// Atualiza as estatísticas reais a cada 30 segundos.
+setInterval(carregarEstatisticas, 30000);
+setInterval(carregarPedidos, 30000);
 
 </script>
 
