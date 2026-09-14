@@ -5,10 +5,11 @@ const path = require("path");
 // CONEXÃO COM A BASE DE DADOS
 // ======================================================
 
-const dbPath = path.join(__dirname, "..", "database.sqlite");
+const dbPath =
+    process.env.DATABASE_PATH ||
+    path.join(__dirname, "..", "database.sqlite");
 
 const db = new Database(dbPath);
-
 // Ativar Foreign Keys
 db.pragma("foreign_keys = ON");
 
